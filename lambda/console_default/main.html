@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>/*${{server_name}}*/ Console</title>
+    <style>
+/*${{style}}*/
+    </style>
+    <script>
+/*${{script}}*/
+    </script>
+</head>
+
+<body>
+    <h1 class="title">/*${{server_name}}*/ Console</h1>
+    <p>build : /*${{version}}*/</p>
+    <h2>使い方</h2>
+    <p>以下のフォームからインスタンスを起動して下さい。インスタンスが起動するとサーバー詳細ページに移動します。</p>
+    <h2>インスタンスを起動する</h2>
+    <form id="describe-form" action="/*${{create_instance_url}}*/" onsubmit="return false;">
+        <input type="hidden" name="action" value="Describe">
+    </form>
+    <form id="parameter-form" action="/*${{create_instance_url}}*/" onsubmit="return false;">
+        <label for="region">リージョン</label>
+        <select name="region" id="region">
+            <option value="ap-northeast-1">東京</option>
+            <option value="ap-south-1">ムンバイ</option>
+        </select><br>
+        <label for="version">Minecraftバージョン</label>
+        <select name="mcversion" id="version">
+            /*${{server_version}}*/
+        </select><br>
+        <label for="capacity">最大参加人数</label>
+        <select name="capacity" id="capacity">
+            /*${{admin_capacity}}*/
+            /*${{user_capacity}}*/
+        </select>
+        /*${{admin_update_plugins_check}}*/
+        <input id="instance_id" type="hidden" name="instance_id" value=""><br>
+        <button id="start" onclick="Start(this)" type="submit" name="action" value="CreateInstance">起動する</button>
+        /*${{admin_button}}*/
+    </form>
+    <div id="result2"></div>
+</body>
+
+</html>

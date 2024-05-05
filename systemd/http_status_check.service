@@ -1,0 +1,16 @@
+[Unit]
+Description=HTTP Status Check Service
+After=syslog.target network.target
+
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/workspace/user_util/bash/http_status_check.sh
+WorkingDirectory=/home/ubuntu/workspace/user_util/bash
+KillMode=process
+Restart=no
+User=ubuntu
+Group=ubuntu
+
+
+[Install]
+WantedBy=multi-user.target

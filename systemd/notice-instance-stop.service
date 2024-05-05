@@ -1,0 +1,16 @@
+[Unit]
+Description=Notice Instance Stop Service
+Before=shutdown.target
+DefaultDependencies=no
+ConditionFileIsExecutable=/home/ubuntu/workspace/user_util/bash/instance_on_stop.sh
+
+[Service]
+Type=oneshot
+ExecStart=/home/ubuntu/workspace/user_util/bash/instance_on_stop.sh
+WorkingDirectory=/home/ubuntu/workspace/user_util/bash
+User=ubuntu
+Group=ubuntu
+
+
+[Install]
+WantedBy=shutdown.target

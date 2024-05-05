@@ -1,0 +1,16 @@
+[Unit]
+Description=Spigot Mincraft Server
+After=syslog.target network.target
+
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/workspace/user_util/bash/server_start.sh
+WorkingDirectory=/home/ubuntu/workspace/user_util/bash
+KillMode=process
+Restart=no
+User=ubuntu
+Group=ubuntu
+
+
+[Install]
+WantedBy=multi-user.target

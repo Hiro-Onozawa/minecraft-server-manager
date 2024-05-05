@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>/*${{server_name}}*/ Console</title>
+    <style>
+.loader {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: solid 4px;
+    border-color: #000000 #00000010 #00000010;
+    position: relative;
+    animation-name: spin;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.table-wrap {
+    overflow-x: scroll;
+}
+.table {
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.table th, .table td {
+    border: 2px solid #eee;
+    padding: 4px 8px;
+}
+
+.copy-link {
+    position: relative;
+    background: #fff;
+    display: flex;
+
+    button {
+        margin: 0px 8px;
+        padding: 2px 8px;
+        background: lightgray;
+        font-size: 18px;
+        #color: #fff;
+        outline: none;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        height: 24px;
+        width: 30px;
+
+        &:hover {
+            background: gray;
+        }
+
+        &:active {
+            background: gray;
+        }
+
+        &::before {
+            content: "コピーしました";
+            position: absolute;
+            top: -40px;
+            right: 0px;
+            background: lightgray;
+            border-radius: 20px;
+            padding: 9px 10px;
+            font-size: 12px;
+            display: none;
+        }
+    }
+
+    &.active button::after,
+    &.active button::before {
+        display: block;
+    }
+}
+    </style>
+    <script>
+function Describe() {
+    if (document.querySelector("#describe").disabled) {
+        return;
+    }
+
+    document.querySelector("#describe").disabled = true;
+    document.querySelector("#result").innerHTML = '<p>サーバー状態取得中<div class="loader"></div></p>';
+    const instances = [
+        {
+            'InstanceId': '/*${{instance_id}}*/',
+            'State': 'running',
+            'PublicIpAddress': '/*${{public_ip_address}}*/',
+        }
+    ];
+    AsyncCreateTable(instances).then((table) => {
+        document.querySelector("#result").replaceChildren(table);
+        document.querySelector("#describe").disabled = false;
+    });
+}
+
+function AddTableHeader(tr, value)
+{
+    const th = document.createElement('th');
+    th.textContent = value;
+    tr.appendChild(th);
+    return th;
+}
+
+function AddTableData(tr, value, add_copy_button = false)
+{
+    const td = document.createElement('td');
+    if (add_copy_button) {
+        const divcpy = document.createElement('div');
+        divcpy.className = "copy-link";
+        divcpy.textContent = value;
+        const cpybtn = document.createElement('button');
+        cpybtn.setAttribute("type", "button");
+        cpybtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M320 448v40c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V120c0-13.3 10.7-24 24-24h72v296c0 30.9 25.1 56 56 56h168zm0-344V0H152c-13.3 0-24 10.7-24 24v368c0 13.3 10.7 24 24 24h272c13.3 0 24-10.7 24-24V128H344c-13.2 0-24-10.8-24-24zm121-31L375 7A24 24 0 0 0 358.1 0H352v96h96v-6.1a24 24 0 0 0 -7-17z"/></svg>';
+        cpybtn.addEventListener("click", function() {
+            // cite: https://stackoverflow.com/questions/51805395/navigator-clipboard-is-undefined
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(value);
+            } else {
+                // Use the 'out of viewport hidden text area' trick
+                const textArea = document.createElement("textarea");
+                textArea.value = value;
+
+                // Move textarea out of the viewport so it's not visible
+                textArea.style.position = "absolute";
+                textArea.style.left = "-999999px";
+
+                document.body.prepend(textArea);
+                textArea.select();
+
+                try {
+                    document.execCommand('copy');
+                } catch (error) {
+                    console.error(error);
+                } finally {
+                    textArea.remove();
+                }
+            }
+            divcpy.classList.add("active");
+            setTimeout(function() { divcpy.classList.remove("active"); }, 2500);
+        });
+        divcpy.appendChild(cpybtn);
+        td.appendChild(divcpy);
+    } else {
+        td.textContent = value;
+    }
+    tr.appendChild(td);
+    return td;
+}
+
+function AsyncInstanceDataConvert(instance_data)
+{
+    function ConcertInstanceState(state) {
+        switch (state) {
+            case 'pending': return '起動中';
+            case 'running': return '稼働中';
+            case 'shutting-down': return 'シャットダウン中';
+            case 'terminated': return 'シャットダウン済み';
+            case 'stopping': return '停止中';
+            case 'stopped': return '停止状態';
+        }
+        return state;
+    }
+    function ConcertServerStatus(status) {
+        switch (status) {
+            case 'offline': return '接続不可';
+            case 'online': return '接続可能';
+            case 'stop': return '停止';
+            case 'timeout': return '-';
+        }
+        return status;
+    }
+    const data = {};
+    data['instance_id'] = instance_data['InstanceId'];
+    data['instance_state'] = ConcertInstanceState(instance_data['State']);
+    const ip = ('PublicIpAddress' in instance_data) ? instance_data['PublicIpAddress'] : null;
+    data['ip'] = ip ? ip : '-';
+
+    function UpdateData(server_data)
+    {
+        const server_status = (server_data && 'status' in server_data) ? server_data['status'] : null;
+        if (server_status == 'timeout') {
+            data['instance_state'] = '接続不可';
+            data['ip'] = '-';
+        }
+        const support_info = (server_data && 'support' in server_data) ? server_data['support'] : null;
+        const version_java = (support_info && 'java' in support_info) ? support_info['java'] : null;
+        const version_bedrock = (support_info && 'bedrock' in support_info) ? support_info['bedrock'] : null;
+
+        data['version_java'] = version_java ? version_java : '-';
+        data['address_java'] = version_java && server_status == 'online' ? ip + ':26291' : '-';
+        data['version_bedrock'] = version_bedrock ? version_bedrock : '-';
+        data['address_bedrock'] = version_bedrock && server_status == 'online' ? ip + ':19132' : '-';
+
+        data['server_status'] = server_status ? ConcertServerStatus(server_status) : '-';
+        data['active'] = (server_data && 'active' in server_data) ? server_data['active'] : '-';
+        data['max'] = (server_data && 'max' in server_data) ? server_data['max'] : '-';
+        data['users'] = (server_data && 'users' in server_data) ? server_data['users'] : '-';
+
+        const server_error = (server_data && 'error' in server_data) ? server_data['error'] : null;
+        const error_number = (server_error && 'number' in server_error) ? server_error['number'] : null;
+        const error_message = (server_error && 'message' in server_error) ? server_error['message'] : null;
+        data['error'] = (error_number ? error_number + ':' : '') + (error_message ? error_message : '-');
+
+        data['last_update'] = new Date().toLocaleString('ja-JP', {'year' : "2-digit", 'month' : "2-digit", 'day' : "2-digit", 'hour' : "2-digit", 'minute' : "2-digit", 'second' : "2-digit", 'fractionalSecondDigits':3});
+    }
+
+    return new Promise((resolve, reject) => {
+        if (ip) {
+            const xhr = new XMLHttpRequest();
+            xhr.responseType = "json";
+            xhr.timeout = 2000;
+            xhr.open("GET", "http://" + ip + ":18081/", true);
+            xhr.send(null);
+            xhr.onload = () => {
+                UpdateData((xhr.readyState == 4 && xhr.status == 200) ? xhr.response : null);
+                resolve(data);
+            };
+            xhr.ontimeout = () => {
+                UpdateData({'status':'timeout'});
+                resolve(data);
+            };
+        }
+        else {
+            UpdateData(null);
+            resolve(data);
+        }
+    });
+}
+
+function AsyncCreateTable(instance_data_list)
+{
+    const table = document.createElement('table');
+    table.setAttribute('class', 'table');
+
+    const header_keys = {
+        'instance_id': 'インスタンスID',
+        'instance_state': 'インスタンス状態',
+        'ip': 'IPアドレス',
+        'server_status': 'サーバー状態',
+        'version_java': '接続可能バージョン (Java版)',
+        'address_java': '接続先情報 (Java版)',
+        'version_bedrock': '接続可能バージョン (統合版)',
+        'address_bedrock': '接続先情報 (統合版)',
+        'active': '参加人数',
+        'max': '参加可能人数',
+        'users': '参加中のユーザー',
+        'error': 'エラー',
+        'last_update': '最終更新'
+    };
+
+    return Promise.all(instance_data_list.map(instance_data => AsyncInstanceDataConvert(instance_data))).then((values) => {
+        let tr = document.createElement('tr');
+        Object.values(header_keys).map((value) => { AddTableHeader(tr, value); });
+        table.appendChild(tr);
+
+        for (let instance_data of values) {
+            tr = document.createElement('tr');
+            Object.keys(header_keys).map((key) => { AddTableData(tr, instance_data[key], key == 'address_java' && instance_data[key] != '-'); });
+            table.appendChild(tr);
+        }
+        if (values.length === 0) {
+            tr = document.createElement('tr');
+            AddTableData(tr, 'インスタンス情報がありません').setAttribute('colspan', Object.keys(header_keys).length);
+            table.appendChild(tr);
+        }
+
+        return table;
+    });
+}
+
+window.addEventListener("load", (event) => {
+    Describe();
+    setInterval(Describe, 60*1000);
+});
+    </script>
+</head>
+
+<body>
+    <h1 class="title">/*${{server_name}}*/ Console</h1>
+    <p>build : /*${{version}}*/</p>
+    <h2>サーバー状態</h2>
+    <input type="button" id="describe" value="更新" onclick="Describe()">
+    <div id="result" class="table-wrap"></div>
+</body>
+
+</html>

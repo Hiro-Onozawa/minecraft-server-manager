@@ -1,0 +1,16 @@
+[Unit]
+Description=Auto Shutdown Server Service
+After=minecraft-spigot-server.service
+
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/workspace/user_util/bash/monitor_server_task.sh
+WorkingDirectory=/home/ubuntu/workspace/user_util/bash
+KillMode=process
+Restart=no
+User=ubuntu
+Group=ubuntu
+
+
+[Install]
+WantedBy=multi-user.target

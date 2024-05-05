@@ -1,0 +1,13 @@
+rcon.port=25575
+enable-command-block=true
+motd=
+difficulty=easy
+max-players=
+broadcast-rcon-to-ops=true
+view-distance=10
+server-port=26291
+enable-rcon=true
+simulation-distance=10
+rcon.password=
+player-idle-timeout=0
+max-world-size=8192
