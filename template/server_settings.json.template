@@ -1,0 +1,80 @@
+{
+  "common":{
+    "versions":[
+      {
+        "name": "1.21.4",
+        "value": "1.21.4",
+        "open_jdk": "openjdk-21-jdk"
+      },
+      {
+        "name": "1.21",
+        "value": "1.21",
+        "open_jdk": "openjdk-21-jdk"
+      },
+      {
+        "name": "1.20.6",
+        "value": "1.20.6",
+        "open_jdk": "openjdk-21-jdk"
+      },
+      {
+        "name": "1.20.4",
+        "value": "1.20.4",
+        "open_jdk": "openjdk-17-jdk"
+      }
+    ],
+    "capacities":[
+      {
+        "name": "メンテ用",
+        "value": 1,
+        "only_admin": true,
+        "instance_type": "t3a.small"
+      },
+      {
+        "name": "5人",
+        "value": 5,
+        "only_admin": false,
+        "instance_type": "t3a.medium"
+      },
+      {
+        "name": "10人",
+        "value": 10,
+        "only_admin": false,
+        "instance_type": "t3a.medium"
+      },
+      {
+        "name": "20人",
+        "value": 20,
+        "only_admin": false,
+        "instance_type": "t3a.large"
+      }
+    ]
+  },
+  "servers":[
+    {
+      "prop_name": "dev",
+      "lambda": {
+        "url": "https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.lambda-url.ap-northeast-1.on.aws/",
+        "path": "test",
+        "name": "dev_minecraft_server_manager",
+        "region": "ap-northeast-1"
+      },
+      "server": {
+        "Name": "Dev Minecraft Server",
+        "ServerName": "Dev_Minecraft_Server"
+      }
+    },
+    {
+      "prop_name": "prod",
+      "lambda": {
+        "url": "https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.lambda-url.ap-northeast-1.on.aws/",
+        "path": "console_default",
+        "name": "prod_minecraft_server_manager",
+        "region": "ap-northeast-1"
+      },
+      "server": {
+        "Name": "Prod Minecraft Server",
+        "ServerName": "Prod_Minecraft_Server"
+      }
+    }
+  ]
+}
