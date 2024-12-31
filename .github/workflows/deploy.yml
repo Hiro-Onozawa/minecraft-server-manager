@@ -1,0 +1,91 @@
+name: DeployToLambda
+
+on:
+  workflow_dispatch: 
+    inputs:
+      prop_name:
+        description: Prop Name
+        type: string
+        required: true
+        default: test
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          sparse-checkout: lambda
+
+      - name: Get Server Properties
+        id: get_server_props
+        shell: bash
+        env:
+          PROP_NAME: ${{ inputs.prop_name }}
+          SERVER_DIFINITIONS_JSON: ${{ toJSON(fromJSON(vars.SERVER_SETTINGS_JSON)['servers']) }}
+        run: |
+          echo "props=$(echo "${SERVER_DIFINITIONS_JSON}" | jq -c -r --arg prop_name "${PROP_NAME}" '.[] | select(.prop_name == $prop_name)')" >> "$GITHUB_OUTPUT"
+
+      - name: Parse Lambda Properties
+        id: lambda_props
+        shell: bash
+        env:
+          DIR_PATH: ${{ format('lambda/{0}', fromJSON(steps.get_server_props.outputs.props)['lambda']['path']) }}
+          FUNCTION_NAME: ${{ fromJSON(steps.get_server_props.outputs.props)['lambda']['name'] }}
+          REGION: ${{ fromJSON(steps.get_server_props.outputs.props)['lambda']['region'] }}
+        run: |
+          echo "dir_path=${DIR_PATH}" >> "$GITHUB_OUTPUT"
+          echo "function_name=${FUNCTION_NAME}" >> "$GITHUB_OUTPUT"
+          echo "region=${REGION}" >> "$GITHUB_OUTPUT"
+
+      - name: Export Commit Hash
+        shell: bash
+        env:
+          IMPL_DIR_PATH: ${{ steps.lambda_props.outputs.dir_path }}
+        run: |
+          mkdir -p "${IMPL_DIR_PATH}/res/txt"
+          echo -n "${GITHUB_SHA:0:8}" > "${IMPL_DIR_PATH}/res/txt/version.txt"
+
+      - name: Export Props
+        shell: bash
+        env:
+          IMPL_DIR_PATH: ${{ steps.lambda_props.outputs.dir_path }}
+          COMMON_SETTINGS_JSON: ${{ toJSON(fromJSON(vars.SERVER_SETTINGS_JSON)['common']) }}
+          SERVER_DIFINITIONS_JSON: ${{ steps.get_server_props.outputs.props }}
+          PROP_NAME: ${{ inputs.prop_name }}
+        run: |
+          mkdir -p "${IMPL_DIR_PATH}/res/json"
+          echo "${COMMON_SETTINGS_JSON}" > "${IMPL_DIR_PATH}/res/json/common_settings.json"
+          echo "${SERVER_DIFINITIONS_JSON}" > "${IMPL_DIR_PATH}/res/json/server_settings.json"
+          jq -n -c --arg prop_name "${PROP_NAME}" '{"prop_name":$prop_name}' > "${IMPL_DIR_PATH}/res/json/default_settings.json"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ steps.lambda_props.outputs.region }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: get-caller-identity is allowed to run on role.
+        shell: bash
+        run: aws sts get-caller-identity
+
+      - name: Python Setup
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: Update Lambda
+        shell: bash
+        working-directory: ${{ steps.lambda_props.outputs.dir_path }}
+        env:
+          FUNCTION_NAME: ${{ steps.lambda_props.outputs.function_name }}
+        run: |
+          pip3 install awscli
+          pip3 install requests -t .
+          zip -r package.zip ./*
+          aws lambda update-function-code --function-name "${FUNCTION_NAME}" --zip-file fileb://package.zip --publish
