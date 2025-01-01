@@ -38,6 +38,35 @@ function ListArchive() {
         let div = document.querySelector("#archives");
         if (xhr.readyState == 4 && xhr.status == 200) {
             let archives = xhr.response.archives;
+            let storage_class_index = {
+                'STANDARD': 0,
+                'REDUCED_REDUNDANCY': 1,
+                'GLACIER': 2,
+                'STANDARD_IA': 3,
+                'ONEZONE_IA': 4,
+                'INTELLIGENT_TIERING': 5,
+                'DEEP_ARCHIVE': 6,
+                'OUTPOSTS': 7,
+                'GLACIER_IR': 8,
+                'SNOW': 9,
+                'EXPRESS_ONEZONE': 10
+            }
+            archives.sort((a, b) => {
+                // ascending by storage class
+                const aClassIndex = storage_class_index[a.StorageClass];
+                const bClassIndex = storage_class_index[b.StorageClass];
+                if (aClassIndex < bClassIndex) { return -1; }
+                if (aClassIndex > bClassIndex) { return 1; }
+
+                // descending by replaced key
+                const aKey = a.Key.replace(/_/g, "-");
+                const bKey = b.Key.replace(/_/g, "-");
+                if (aKey < bKey) { return 1; }
+                if (aKey > bKey) { return -1; }
+
+                return 0;
+            });
+
             let table = document.createElement("table");
             let thead = document.createElement("thead");
             let tbody = document.createElement("tbody");
