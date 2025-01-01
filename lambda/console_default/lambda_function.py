@@ -109,6 +109,7 @@ def do_action(event):
             region = get_param(event, 'region')
             name = setting['server']['Name']
             server_name = setting['server']['ServerName']
+            bucket_name = setting['server']['BucketName']
             version = get_param(event, 'mcversion')
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
@@ -117,12 +118,13 @@ def do_action(event):
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, name, server_name, version, open_jdk_ver, instance_type, max_user, 'user', update_plugins),
+                'body': instance_create.create_action(region, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'user', update_plugins),
             }
         elif action == "CreateInstanceAsAdmin":
             region = get_param(event, 'region')
             name = setting['server']['Name']
             server_name = setting['server']['ServerName']
+            bucket_name = setting['server']['BucketName']
             version = get_param(event, 'mcversion')
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
@@ -131,7 +133,7 @@ def do_action(event):
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, name, server_name, version, open_jdk_ver, instance_type, max_user, 'admin', update_plugins),
+                'body': instance_create.create_action(region, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'admin', update_plugins),
             }
         elif action == "SyncInstanceRuning":
             region = get_param(event, 'region')
