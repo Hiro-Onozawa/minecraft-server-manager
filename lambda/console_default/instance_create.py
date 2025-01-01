@@ -1,7 +1,7 @@
 import base64
 import boto3
 
-def create_action(region, name, server_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins):
+def create_action(region, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins):
     print(region, version, instance_type, script_arg)
 
     def parse_device_mapping(mapping):
@@ -29,11 +29,11 @@ def create_action(region, name, server_name, version, open_jdk_ver, instance_typ
 
     def to_base64(script):
         return base64.b64encode(script.encode()).decode()
-    def get_script(arg_value, version, server_name, max_user, open_jdk_ver, update_plugins):
+    def get_script(arg_value, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins):
         user_data = ""
         with open('res/bash/user_data.sh') as f:
             user_data = f.read()
-        return user_data.replace('%%ON_MOUNT_ARG%%', '%s %s %s %s %s %s' % (arg_value, version, server_name, max_user, open_jdk_ver, update_plugins))
+        return user_data.replace('%%ON_MOUNT_ARG%%', '%s %s %s %s %s %s %s' % (arg_value, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins))
 
     def get_ami_image(client):
         response = client.describe_images(
@@ -128,7 +128,7 @@ def create_action(region, name, server_name, version, open_jdk_ver, instance_typ
         EbsOptimized=True,
         InstanceInitiatedShutdownBehavior='terminate',
         BlockDeviceMappings=get_block_device_mappings(ami_image),
-        UserData=to_base64(get_script(script_arg, version, server_name, max_user, open_jdk_ver, update_plugins)),
+        UserData=to_base64(get_script(script_arg, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins)),
         NetworkInterfaces=[
             {
                 'SubnetId': get_subnet_id(ec2, get_supported_availability_zones(ec2, instance_type), get_default_vpc_id(ec2)),

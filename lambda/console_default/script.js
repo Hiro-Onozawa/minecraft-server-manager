@@ -31,6 +31,77 @@ function Describe() {
     });
 }
 
+function ListArchive() {
+    let sender = document.querySelector("#list-archive-form");
+    document.querySelector("#archives").innerHTML = '<p>ロード中...<div class="loader"></div></p>';
+    XMLHttpRequestSubmit(sender).then((xhr) => {
+        let div = document.querySelector("#archives");
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            let archives = xhr.response.archives;
+            let storage_class_index = {
+                'STANDARD': 0,
+                'REDUCED_REDUNDANCY': 1,
+                'GLACIER': 2,
+                'STANDARD_IA': 3,
+                'ONEZONE_IA': 4,
+                'INTELLIGENT_TIERING': 5,
+                'DEEP_ARCHIVE': 6,
+                'OUTPOSTS': 7,
+                'GLACIER_IR': 8,
+                'SNOW': 9,
+                'EXPRESS_ONEZONE': 10
+            }
+            archives.sort((a, b) => {
+                // ascending by storage class
+                const aClassIndex = storage_class_index[a.StorageClass];
+                const bClassIndex = storage_class_index[b.StorageClass];
+                if (aClassIndex < bClassIndex) { return -1; }
+                if (aClassIndex > bClassIndex) { return 1; }
+
+                // descending by replaced key
+                const aKey = a.Key.replace(/_/g, "-");
+                const bKey = b.Key.replace(/_/g, "-");
+                if (aKey < bKey) { return 1; }
+                if (aKey > bKey) { return -1; }
+
+                return 0;
+            });
+
+            let table = document.createElement("table");
+            let thead = document.createElement("thead");
+            let tbody = document.createElement("tbody");
+
+            let tr = document.createElement("tr");
+            ['アーカイブ名', '更新日時', 'サイズ', 'ストレージクラス'].forEach(value => {
+                let th = document.createElement("th");
+                th.setAttribute("scope", "col");
+                th.innerHTML = value;
+                tr.appendChild(th);
+            });
+            thead.appendChild(tr);
+
+            for (let i = 0; i < archives.length; ++i) {
+                tr = document.createElement("tr");
+                let archive = archives[i];
+                let values = [archive.Key, new Date(archive.LastModified), archive.Size, archive.StorageClass];
+                values.forEach(value => {
+                    let td = document.createElement("td");
+                    td.innerHTML = value;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            }
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            while(div.firstChild) { div.removeChild(div.firstChild); }
+            div.appendChild(table);
+        } else {
+            div.innerHTML = '<p>アーカイブ一覧の取得に失敗しました。</p>';
+        }
+    });
+}
+
 function RedirectInstancePage(publicIpAddress) {
     let sender = document.querySelector("#describe-form");
     UpdateStartButton(true);
@@ -158,4 +229,5 @@ function XMLHttpRequestSubmit(sender) {
 
 window.addEventListener("load", (event) => {
     Describe();
+    ListArchive();
 });

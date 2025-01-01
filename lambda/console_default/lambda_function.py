@@ -3,6 +3,7 @@ import json
 import boto3
 import instance_describe
 import instance_create
+import list_archive
 
 def get_param(e, name, defval=''):
     if name in e:
@@ -54,6 +55,7 @@ def main(name, lambda_url, common_settings, mode):
         'version': version,
         'describe_url': lambda_url,
         'create_instance_url': lambda_url,
+        'list_archive_url': lambda_url,
         'server_version': ''.join([ '<option value="%s">%s</option>' % (x['value'], x['name']) for x in common_settings['versions'] ]),
         'admin_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if x['only_admin'] ]),
         'user_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if not x['only_admin'] ]),
@@ -109,6 +111,7 @@ def do_action(event):
             region = get_param(event, 'region')
             name = setting['server']['Name']
             server_name = setting['server']['ServerName']
+            bucket_name = setting['server']['BucketName']
             version = get_param(event, 'mcversion')
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
@@ -117,12 +120,13 @@ def do_action(event):
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, name, server_name, version, open_jdk_ver, instance_type, max_user, 'user', update_plugins),
+                'body': instance_create.create_action(region, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'user', update_plugins),
             }
         elif action == "CreateInstanceAsAdmin":
             region = get_param(event, 'region')
             name = setting['server']['Name']
             server_name = setting['server']['ServerName']
+            bucket_name = setting['server']['BucketName']
             version = get_param(event, 'mcversion')
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
@@ -131,7 +135,7 @@ def do_action(event):
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, name, server_name, version, open_jdk_ver, instance_type, max_user, 'admin', update_plugins),
+                'body': instance_create.create_action(region, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'admin', update_plugins),
             }
         elif action == "SyncInstanceRuning":
             region = get_param(event, 'region')
@@ -140,6 +144,14 @@ def do_action(event):
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
                 'body': instance_create.sync_action(region, instance_id),
+            }
+        elif action == "ListArchive":
+            bucket_name = setting['server']['BucketName']
+            server_name = setting['server']['ServerName']
+            return {
+                'statusCode': 200,
+                'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
+                'body': list_archive.list_action(bucket_name, server_name),
             }
         else:
             raise NotImplementedError

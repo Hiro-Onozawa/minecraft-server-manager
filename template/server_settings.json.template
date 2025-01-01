@@ -59,7 +59,8 @@
       },
       "server": {
         "Name": "Dev Minecraft Server",
-        "ServerName": "Dev_Minecraft_Server"
+        "ServerName": "Dev_Minecraft_Server",
+        "BucketName": "Minecraft_Server_Archive_Bucket"
       }
     },
     {
@@ -71,7 +72,8 @@
       },
       "server": {
         "Name": "Prod Minecraft Server",
-        "ServerName": "Prod_Minecraft_Server"
+        "ServerName": "Prod_Minecraft_Server",
+        "BucketName": "Minecraft_Server_Archive_Bucket"
       }
     }
   ]
