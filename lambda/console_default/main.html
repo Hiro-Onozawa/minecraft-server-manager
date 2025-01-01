@@ -18,7 +18,7 @@
     <h2>使い方</h2>
     <p>以下のフォームからインスタンスを起動して下さい。インスタンスが起動するとサーバー詳細ページに移動します。</p>
     <h2>インスタンスを起動する</h2>
-    <form id="describe-form" action="/*${{create_instance_url}}*/" onsubmit="return false;">
+    <form id="describe-form" action="/*${{describe_url}}*/" onsubmit="return false;">
         <input type="hidden" name="action" value="Describe">
     </form>
     <form id="parameter-form" action="/*${{create_instance_url}}*/" onsubmit="return false;">
@@ -42,6 +42,12 @@
         /*${{admin_button}}*/
     </form>
     <div id="result2"></div>
+    <h2>アーカイブリスト</h2>
+    <form id="list-archive-form" action="/*${{list_archive_url}}*/" onsubmit="return false;">
+        <input type="hidden" name="action" value="ListArchive">
+    </form>
+    <div id="archives">
+    </div>
 </body>
 
 </html>
