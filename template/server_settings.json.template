@@ -53,7 +53,6 @@
     {
       "prop_name": "dev",
       "lambda": {
-        "url": "https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.lambda-url.ap-northeast-1.on.aws/",
         "path": "test",
         "name": "dev_minecraft_server_manager",
         "region": "ap-northeast-1"
@@ -66,7 +65,6 @@
     {
       "prop_name": "prod",
       "lambda": {
-        "url": "https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.lambda-url.ap-northeast-1.on.aws/",
         "path": "console_default",
         "name": "prod_minecraft_server_manager",
         "region": "ap-northeast-1"

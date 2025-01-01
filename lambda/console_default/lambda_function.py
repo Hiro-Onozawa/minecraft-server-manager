@@ -17,6 +17,9 @@ def get_param(e, name, defval=''):
     else:
         return defval
 
+def get_lambda_url(e):
+    return 'https://%s/' % e['requestContext']['domainName']
+
 def invalid_operation():
     return ('Invalid Operation', '', '', '')
 
@@ -30,7 +33,7 @@ def make_node(name, text, attributes=None):
 def make_html(headContents, bodyContents):
     return '<!DOCTYPE html>' + make_node('html', ''.join([make_node('head', ''.join(headContents)), make_node('body', ''.join(bodyContents))]))
 
-def main(name, lambda_settings, common_settings, mode):
+def main(name, lambda_url, common_settings, mode):
     version = ""
     html = ""
     script = ""
@@ -49,8 +52,8 @@ def main(name, lambda_settings, common_settings, mode):
         'style': style,
         'script': script,
         'version': version,
-        'describe_url': lambda_settings['url'],
-        'create_instance_url': lambda_settings['url'],
+        'describe_url': lambda_url,
+        'create_instance_url': lambda_url,
         'server_version': ''.join([ '<option value="%s">%s</option>' % (x['value'], x['name']) for x in common_settings['versions'] ]),
         'admin_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if x['only_admin'] ]),
         'user_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if not x['only_admin'] ]),
@@ -78,21 +81,21 @@ def do_action(event):
 
     if action == 'admin':
         name = setting['server']['Name']
-        lambda_settings = setting['lambda']
+        lambda_url = get_lambda_url(event)
         return {
             'statusCode': 200,
             'headers': { 'Content-Type': 'text/html; charset=UTF-8' },
-            'body': main(name, lambda_settings, common_settings, 'admin'),
+            'body': main(name, lambda_url, common_settings, 'admin'),
         }
 
     try:
         if action == 'main':
             name = setting['server']['Name']
-            lambda_settings = setting['lambda']
+            lambda_url = get_lambda_url(event)
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/html; charset=UTF-8' },
-                'body': main(name, lambda_settings, common_settings, 'user'),
+                'body': main(name, lambda_url, common_settings, 'user'),
             }
         if action == "Describe":
             name = setting['server']['Name']
