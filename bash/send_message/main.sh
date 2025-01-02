@@ -11,7 +11,7 @@ trap 'rc=$?; trap - EXIT; atexit; exit $?' INT PIPE TERM
 
 tmpfile=$(mktemp "/tmp/${0##*/}.tmp.XXXXXX")
 
-cd "$(dirname "$0")"
+cd "$(dirname "$(dirname "$0")")"
 cat - > "${tmpfile}"
 
 TARGET="EVERYONE"
@@ -23,10 +23,10 @@ fi
 
 if [ "${TARGET}" != "ONLY_ADMIN" ]; then
 cat ../settings/notification.cfg \
-  | jq -r -c --arg tmpfile "${tmpfile}" '.[] | "cat \"" + $tmpfile + "\" | ./send_to_" + .type + ".sh '"'"'" + (. | tostring) + "'"'"'"' \
+  | jq -r -c --arg tmpfile "${tmpfile}" '.[] | "cat \"" + $tmpfile + "\" | ./send_message/send_to_" + .type + ".sh '"'"'" + (. | tostring) + "'"'"'"' \
   | bash
 fi
 
 cat ../settings/notification_admin.cfg \
-  | jq -r -c --arg tmpfile "${tmpfile}" '.[] | "cat \"" + $tmpfile + "\" | ./send_to_" + .type + ".sh '"'"'" + (. | tostring) + "'"'"'"' \
+  | jq -r -c --arg tmpfile "${tmpfile}" '.[] | "cat \"" + $tmpfile + "\" | ./send_message/send_to_" + .type + ".sh '"'"'" + (. | tostring) + "'"'"'"' \
   | bash
