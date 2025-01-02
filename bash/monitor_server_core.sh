@@ -2,7 +2,7 @@
 
 PATH=$PATH:$(dirname "$0")
 
-source server_setup_env.sh
+source server/setup_env.sh
 source monitor_last_state_get.sh
 
 # State : Terminated, Left, Joined, Stop, Backup
@@ -10,7 +10,7 @@ source monitor_last_state_get.sh
 NOW_TIME="$(TZ=JST-9 date +%s)"
 SERVER_FIRST_JOINED_PATH="${SERVER_HOME}/server_joined"
 SERVER_BACKUP_PID_PATH="${SERVER_HOME}/server_backup"
-SERVER_HEALTH="$(server_health_check.sh)"
+SERVER_HEALTH="$(server/health_check.sh)"
 SERVER_STATUS="$(echo "${SERVER_HEALTH}" | jq -r '.status')"
 SERVER_ACTIVE_USER="$(echo "${SERVER_HEALTH}" | jq -r '.active')"
 if [ "${SERVER_STATUS}" = "online" ]; then

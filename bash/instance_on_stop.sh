@@ -2,7 +2,7 @@
 
 PATH=$PATH:$(dirname "$0")
 
-source server_setup_env.sh
+source server/setup_env.sh
 
 NOTICE_SERVER_NAME="${SERVER_NAME} (${SERVER_VERSION})"
 

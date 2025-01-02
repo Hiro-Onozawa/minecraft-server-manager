@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source /home/ubuntu/workspace/user_util/bash/server_setup_env.sh
+PATH=$PATH:$(dirname "$(dirname "$0")")
+
+source server/setup_env.sh
 cat /home/ubuntu/workspace/user_util/template/index.html.template \
   | sed 's|/\*\${{instance_id}}\*/|'"$(ec2metadata --instance-id)"'|g' \
   | sed 's|/\*\${{public_ip_address}}\*/|'"${SERVER_ADDRESS}"'|g' \

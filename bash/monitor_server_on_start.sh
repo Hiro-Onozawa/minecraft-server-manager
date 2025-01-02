@@ -2,7 +2,7 @@
 
 PATH=$PATH:$(dirname "$0")
 
-source server_setup_env.sh
+source server/setup_env.sh
 
 NOTICE_SERVER_NAME=$(sed -E -n 's/^motd=(.+)$/\1/p' "${SERVER_HOME}/server.properties")
 

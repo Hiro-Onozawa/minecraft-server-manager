@@ -2,7 +2,7 @@
 
 PATH=$PATH:$(dirname "$0")
 
-source server_setup_env.sh
+source server/setup_env.sh
 
 if [ -f "${SERVER_LAST_STATE_FILE}" ]; then
   export SERVER_LAST_STATE="$(jq -r '.state' "${SERVER_LAST_STATE_FILE}")"

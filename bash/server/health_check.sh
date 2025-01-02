@@ -1,8 +1,8 @@
 #!/bin/bash
 
-PATH=$PATH:$(dirname "$0")
+PATH=$PATH:$(dirname "$(dirname "$0")")
 
-source server_setup_env.sh
+source server/setup_env.sh
 
 if systemctl is-active --quiet minecraft-spigot-server.service; then
   RESP=$(mcrcon -c 'list' 2>&1 \
