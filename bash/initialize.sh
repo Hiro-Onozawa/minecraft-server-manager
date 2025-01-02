@@ -3,6 +3,8 @@
 cd $(dirname "$0")
 PATH=$PATH:$(pwd)
 
+find . -type f -name '*.sh' -exec chmod +x \{\} \;
+
 source server/setup_env.sh
 mkdir -p "$(dirname "${SERVER_VERSION_PATH}")"
 echo $2 > "${SERVER_VERSION_PATH}"
