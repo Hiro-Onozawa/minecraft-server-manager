@@ -109,6 +109,7 @@ def do_action(event):
             }
         elif action == "CreateInstance":
             region = get_param(event, 'region')
+            branch_name = default_settings['branch_name']
             name = setting['server']['Name']
             server_name = setting['server']['ServerName']
             bucket_name = setting['server']['BucketName']
@@ -120,10 +121,11 @@ def do_action(event):
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'user', update_plugins),
+                'body': instance_create.create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'user', update_plugins),
             }
         elif action == "CreateInstanceAsAdmin":
             region = get_param(event, 'region')
+            branch_name = default_settings['branch_name']
             name = setting['server']['Name']
             server_name = setting['server']['ServerName']
             bucket_name = setting['server']['BucketName']
@@ -135,7 +137,7 @@ def do_action(event):
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'admin', update_plugins),
+                'body': instance_create.create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'admin', update_plugins),
             }
         elif action == "SyncInstanceRuning":
             region = get_param(event, 'region')

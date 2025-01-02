@@ -62,7 +62,7 @@ jobs:
           mkdir -p "${IMPL_DIR_PATH}/res/json"
           echo "${COMMON_SETTINGS_JSON}" > "${IMPL_DIR_PATH}/res/json/common_settings.json"
           echo "${SERVER_DIFINITIONS_JSON}" > "${IMPL_DIR_PATH}/res/json/server_settings.json"
-          jq -n -c --arg prop_name "${PROP_NAME}" '{"prop_name":$prop_name}' > "${IMPL_DIR_PATH}/res/json/default_settings.json"
+          jq -n -c --arg prop_name "${PROP_NAME}" --arg branch_name "${GITHUB_REF_NAME}" '{"prop_name":$prop_name, "branch_name":$branch_name}' > "${IMPL_DIR_PATH}/res/json/default_settings.json"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
