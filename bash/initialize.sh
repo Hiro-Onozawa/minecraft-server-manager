@@ -1,6 +1,7 @@
 #!/bin/bash
 
-PATH=$PATH:$(dirname "$0")
+cd $(dirname "$0")
+PATH=$PATH:$(pwd)
 
 source server/setup_env.sh
 mkdir -p "$(dirname "${SERVER_VERSION_PATH}")"
