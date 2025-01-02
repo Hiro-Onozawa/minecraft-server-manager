@@ -14,7 +14,7 @@ echo $4 > "${BACKUP_BUCKET_NAME_PATH}"
 
 /home/ubuntu/workspace/user_util/bash/http/initialize.sh
 
-/home/ubuntu/workspace/user_util/bash/mcrcon_initialize.sh
+/home/ubuntu/workspace/user_util/bash/mcrcon/initialize.sh
 /home/ubuntu/workspace/user_util/bash/server/initialize.sh "$1" "$5" "$6" "$7"
 
 if [ "$1" = "user" ]; then
