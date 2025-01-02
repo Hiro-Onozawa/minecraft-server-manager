@@ -12,7 +12,7 @@ echo $4 > "${BACKUP_BUCKET_NAME_PATH}"
 
 /home/ubuntu/workspace/user_util/bash/instance_on_start.sh
 
-/home/ubuntu/workspace/user_util/bash/http_initialize.sh
+/home/ubuntu/workspace/user_util/bash/http/initialize.sh
 
 /home/ubuntu/workspace/user_util/bash/mcrcon_initialize.sh
 /home/ubuntu/workspace/user_util/bash/server_initialize.sh "$1" "$5" "$6" "$7"

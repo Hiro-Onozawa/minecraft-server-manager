@@ -4,8 +4,8 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-ExecStart=/home/ubuntu/workspace/user_util/bash/http_status_check.sh
-WorkingDirectory=/home/ubuntu/workspace/user_util/bash
+ExecStart=/home/ubuntu/workspace/user_util/bash/http/listen_status.sh
+WorkingDirectory=/home/ubuntu/workspace/user_util/bash/http
 KillMode=process
 Restart=no
 User=ubuntu
