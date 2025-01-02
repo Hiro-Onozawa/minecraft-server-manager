@@ -4,8 +4,8 @@ After=syslog.target network.target
 
 [Service]
 Type=oneshot
-ExecStart=/home/ubuntu/workspace/user_util/bash/instance_on_start.sh
-WorkingDirectory=/home/ubuntu/workspace/user_util/bash
+ExecStart=/home/ubuntu/workspace/user_util/bash/notification/instance_on_start.sh
+WorkingDirectory=/home/ubuntu/workspace/user_util/bash/notification
 User=ubuntu
 Group=ubuntu
 

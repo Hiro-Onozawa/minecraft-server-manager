@@ -4,7 +4,7 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-ExecStart=/home/ubuntu/workspace/user_util/bash/server_start.sh
+ExecStart=/home/ubuntu/workspace/user_util/bash/server/start.sh
 WorkingDirectory=/home/ubuntu/workspace/user_util/bash
 KillMode=process
 Restart=no

@@ -1,6 +1,9 @@
 #!/bin/bash
 
-source /home/ubuntu/workspace/user_util/bash/server_setup_env.sh
+cd $(dirname "$(dirname "$0")")
+PATH=$PATH:$(pwd)
+
+source server/setup_env.sh
 
 mkdir -p ${SERVER_HOME}
 cd ${SERVER_HOME}

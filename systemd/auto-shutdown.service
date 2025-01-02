@@ -4,8 +4,8 @@ After=minecraft-spigot-server.service
 
 [Service]
 Type=simple
-ExecStart=/home/ubuntu/workspace/user_util/bash/monitor_server_task.sh
-WorkingDirectory=/home/ubuntu/workspace/user_util/bash
+ExecStart=/home/ubuntu/workspace/user_util/bash/monitor/server_task.sh
+WorkingDirectory=/home/ubuntu/workspace/user_util/bash/monitor
 KillMode=process
 Restart=no
 User=ubuntu

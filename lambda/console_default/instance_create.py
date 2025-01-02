@@ -1,7 +1,7 @@
 import base64
 import boto3
 
-def create_action(region, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins):
+def create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins):
     print(region, version, instance_type, script_arg)
 
     def parse_device_mapping(mapping):
@@ -33,7 +33,7 @@ def create_action(region, name, server_name, bucket_name, version, open_jdk_ver,
         user_data = ""
         with open('res/bash/user_data.sh') as f:
             user_data = f.read()
-        return user_data.replace('%%ON_MOUNT_ARG%%', '%s %s %s %s %s %s %s' % (arg_value, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins))
+        return user_data.replace('%%BRANCH_NAME%%', branch_name).replace('%%ON_MOUNT_ARG%%', '%s %s %s %s %s %s %s' % (arg_value, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins))
 
     def get_ami_image(client):
         response = client.describe_images(

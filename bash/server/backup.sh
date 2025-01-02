@@ -1,8 +1,9 @@
 #!/bin/bash -eu
 
-PATH=$PATH:$(dirname "$0")
+cd $(dirname "$(dirname "$0")")
+PATH=$PATH:$(pwd)
 
-source server_setup_env.sh
+source server/setup_env.sh
 
 SUFFIX="$(TZ=JST-9 date +%Y%m%d-%H%M)"
 BACKUP_NAME="main_backup_${SERVER_VERSION}_${SUFFIX}.tar"
