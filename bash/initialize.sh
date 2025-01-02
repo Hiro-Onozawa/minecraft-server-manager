@@ -10,9 +10,7 @@ echo $3 > "${SERVER_NAME_PATH}"
 mkdir -p "$(dirname "${BACKUP_BUCKET_NAME_PATH}")"
 echo $4 > "${BACKUP_BUCKET_NAME_PATH}"
 
-/home/ubuntu/workspace/user_util/bash/notification_initialize.sh
-
-/home/ubuntu/workspace/user_util/bash/instance_on_start.sh
+/home/ubuntu/workspace/user_util/bash/notification/initialize.sh
 
 /home/ubuntu/workspace/user_util/bash/http/initialize.sh
 
