@@ -53,6 +53,16 @@ jobs:
           mkdir -p "${IMPL_DIR_PATH}/res/txt"
           echo -n "${GITHUB_SHA:0:8}" > "${IMPL_DIR_PATH}/res/txt/version.txt"
 
+      - name: Export Secrets
+        shell: bash
+        env:
+          IMPL_DIR_PATH: ${{ steps.lambda_props.outputs.dir_path }}
+          DISCORD_WEBHOOK_USER: ${{ secrets[fromJSON(steps.get_server_props.outputs.props)['notificate']['user_secrets_key_name']] }}
+          DISCORD_WEBHOOK_ADMIN: ${{ secrets[fromJSON(steps.get_server_props.outputs.props)['notificate']['admin_secrets_key_name']] }}
+        run: |
+          echo -n "${DISCORD_WEBHOOK_USER}" > "${IMPL_DIR_PATH}/res/txt/discord_webhook_user.txt"
+          echo -n "${DISCORD_WEBHOOK_ADMIN}" > "${IMPL_DIR_PATH}/res/txt/discord_webhook_admin.txt"
+
       - name: Export Props
         shell: bash
         env:

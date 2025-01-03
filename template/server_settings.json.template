@@ -62,6 +62,10 @@
         "Name": "Dev Minecraft Server",
         "ServerName": "Dev_Minecraft_Server",
         "BucketName": "Minecraft_Server_Archive_Bucket"
+      },
+      "notificate": {
+        "user_secrets_key_name": "DISCORD_WEBHOOK_USER_DEV",
+        "admin_secrets_key_name": "DISCORD_WEBHOOK_ADMIN_DEV"
       }
     },
     {
@@ -76,6 +80,10 @@
         "Name": "Prod Minecraft Server",
         "ServerName": "Prod_Minecraft_Server",
         "BucketName": "Minecraft_Server_Archive_Bucket"
+      },
+      "notificate": {
+        "user_secrets_key_name": "DISCORD_WEBHOOK_USER_PROD",
+        "admin_secrets_key_name": "DISCORD_WEBHOOK_ADMIN_PROD"
       }
     }
   ]

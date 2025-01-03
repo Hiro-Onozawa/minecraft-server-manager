@@ -29,7 +29,7 @@ wget -q -O paper-${SERVER_VERSION}.jar https://api.papermc.io/v2/projects/paper/
 rm paper_${SERVER_VERSION}.json paper_${SERVER_VERSION}_latest.json
 
 head -c 64 /dev/random | base64 | tr -d '/+' | head -c 24 > rcon.pass
-sed -e 's/rcon.password=/rcon.password='"$(cat rcon.pass)"'/' -e 's/motd=/motd='"${ARG_OWNER_NAME} (${SERVER_VERSION})"'/' -e 's/max-players=/max-players='"${ARG_MAX_PLAYERS}"'/' /home/ubuntu/workspace/user_util/template/server.properties.template > server.properties
+sed -e 's/rcon.password=/rcon.password='"$(cat rcon.pass)"'/' -e 's/motd=/motd='"${SERVER_NAME} (${SERVER_VERSION})"'/' -e 's/max-players=/max-players='"${ARG_MAX_PLAYERS}"'/' /home/ubuntu/workspace/user_util/template/server.properties.template > server.properties
 echo "eula=true" > eula.txt
 
 mkdir -p plugins
