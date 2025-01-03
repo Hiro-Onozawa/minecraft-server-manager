@@ -123,11 +123,11 @@ def do_action(event):
                 discord_webhook_admin = f.read()
             lambda_url = get_lambda_url(event)
 
-            if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] != 'stopped' ]) > 0:
+            if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] != 'terminated' ]) > 0:
                 return {
                     'statusCode': 429,
                     'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                    'body': '{"message":"否定し状態のインスタンスが存在しています。"}',
+                    'body': '{"message":"非停止状態のインスタンスが存在しています。"}',
                 }
 
             return {
