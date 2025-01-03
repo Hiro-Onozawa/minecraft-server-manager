@@ -118,7 +118,7 @@ def do_action(event):
             script_arg = 'admin' if request_as_admin == 'true' else 'user'
             update_plugins = get_param(event, 'update_plugins', 'false')
 
-            if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] x != 'stopped' ]) > 0:
+            if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] != 'stopped' ]) > 0:
                 return {
                     'statusCode': 429,
                     'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
