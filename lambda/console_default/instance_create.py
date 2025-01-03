@@ -45,9 +45,7 @@ def create_action(region, branch_name, name, server_name, bucket_name, version, 
             'discord_webhook_admin': discord_webhook_admin,
             'console_lambda_url': console_lambda_url
         }
-        return user_data
-            .replace('%%BRANCH_NAME%%', branch_name)
-            .replace('%%INSTANCE_PARAMS_JSON%%', json.dumps(instance_params_obj, ensure_ascii=False, indent=None))
+        return user_data.replace('%%BRANCH_NAME%%', branch_name).replace('%%INSTANCE_PARAMS_JSON%%', json.dumps(instance_params_obj, ensure_ascii=False, indent=None))
 
     def get_ami_image(client):
         response = client.describe_images(
