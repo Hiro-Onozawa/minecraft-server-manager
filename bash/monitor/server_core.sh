@@ -37,6 +37,7 @@ if [ "${SERVER_STATUS}" = "online" ]; then
         exit 0
       fi
     elif [ "${SERVER_LAST_STATE}" = "Start" ]; then
+      monitor/last_state_set.sh "Left"
       exit 0
     elif [ "${SERVER_LAST_STATE}" = "Stop" ]; then
       monitor/server_on_start.sh
