@@ -33,7 +33,20 @@ def create_action(region, branch_name, name, server_name, bucket_name, version, 
         user_data = ""
         with open('res/bash/user_data.sh') as f:
             user_data = f.read()
-        return user_data.replace('%%BRANCH_NAME%%', branch_name).replace('%%ON_MOUNT_ARG%%', '%s %s %s %s %s %s %s %s %s' % (arg_value, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins, discord_webhook_user, discord_webhook_admin))
+        instance_params_obj = {
+            'arg_value': arg_value,
+            'version': version,
+            'server_name': server_name,
+            'bucket_name': bucket_name,
+            'max_user': max_user,
+            'open_jdk_ver': open_jdk_ver,
+            'update_plugins': update_plugins,
+            'discord_webhook_user': discord_webhook_user,
+            'discord_webhook_admin': discord_webhook_admin
+        }
+        return user_data
+            .replace('%%BRANCH_NAME%%', branch_name)
+            .replace('%%INSTANCE_PARAMS_JSON%%', json.dumps(instance_params_obj, ensure_ascii=False, indent=None))
 
     def get_ami_image(client):
         response = client.describe_images(
