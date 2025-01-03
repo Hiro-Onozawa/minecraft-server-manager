@@ -1,7 +1,7 @@
 import base64
 import boto3
 
-def create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin):
+def create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url):
     print(region, version, instance_type, script_arg)
 
     def parse_device_mapping(mapping):
@@ -29,7 +29,7 @@ def create_action(region, branch_name, name, server_name, bucket_name, version, 
 
     def to_base64(script):
         return base64.b64encode(script.encode()).decode()
-    def get_script(arg_value, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins, discord_webhook_user, discord_webhook_admin):
+    def get_script(arg_value, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url):
         user_data = ""
         with open('res/bash/user_data.sh') as f:
             user_data = f.read()
@@ -42,7 +42,8 @@ def create_action(region, branch_name, name, server_name, bucket_name, version, 
             'open_jdk_ver': open_jdk_ver,
             'update_plugins': update_plugins,
             'discord_webhook_user': discord_webhook_user,
-            'discord_webhook_admin': discord_webhook_admin
+            'discord_webhook_admin': discord_webhook_admin,
+            'console_lambda_url': console_lambda_url
         }
         return user_data
             .replace('%%BRANCH_NAME%%', branch_name)
@@ -141,7 +142,7 @@ def create_action(region, branch_name, name, server_name, bucket_name, version, 
         EbsOptimized=True,
         InstanceInitiatedShutdownBehavior='terminate',
         BlockDeviceMappings=get_block_device_mappings(ami_image),
-        UserData=to_base64(get_script(script_arg, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins, discord_webhook_user, discord_webhook_admin)),
+        UserData=to_base64(get_script(script_arg, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url)),
         NetworkInterfaces=[
             {
                 'SubnetId': get_subnet_id(ec2, get_supported_availability_zones(ec2, instance_type), get_default_vpc_id(ec2)),

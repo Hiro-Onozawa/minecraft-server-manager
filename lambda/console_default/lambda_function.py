@@ -121,6 +121,7 @@ def do_action(event):
                 discord_webhook_user = f.read()
             with open('res/txt/discord_webhook_admin.txt') as f:
                 discord_webhook_admin = f.read()
+            lambda_url = get_lambda_url(event)
 
             if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] != 'stopped' ]) > 0:
                 return {
@@ -132,7 +133,7 @@ def do_action(event):
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin),
+                'body': instance_create.create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, lambda_url),
             }
         elif action == "SyncInstanceRuning":
             region = get_param(event, 'region')
