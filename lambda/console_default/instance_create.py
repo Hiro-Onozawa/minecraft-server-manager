@@ -1,5 +1,6 @@
 import base64
 import boto3
+import json
 
 def create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url):
     print(region, version, instance_type, script_arg)
