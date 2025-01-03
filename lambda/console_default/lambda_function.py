@@ -60,7 +60,7 @@ def main(name, lambda_url, common_settings, mode):
         'admin_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if x['only_admin'] ]),
         'user_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if not x['only_admin'] ]),
         'admin_update_plugins_check': '<br><label for="update_plugins">プラグインの更新を実行する</label><input name="update_plugins" value="true" type="checkbox">',
-        'admin_button': '<button id="admin_start" onclick="Start(this)" type="submit" name="action" value="CreateInstanceAsAdmin">管理者として起動する</button>'
+        'admin_create_instance_button': '<button id="admin_start" onclick="Start(this, true)" type="submit" name="action" value="CreateInstance">管理者として起動する</button>'
     }
     if mode != 'admin':
         for key in {key for key in replace_obj.keys() if re.match(r'^admin_', key)}:
@@ -73,6 +73,9 @@ def do_action(event):
     with open('res/json/default_settings.json') as f:
         default_settings = json.load(f)
 
+    with open('res/txt/function_type.txt') as f:
+        mode = f.read()
+
     server = default_settings['prop_name']
     action = get_param(event, 'action', 'main')
 
@@ -81,23 +84,18 @@ def do_action(event):
     with open('res/json/server_settings.json') as f:
         setting = json.load(f)
 
-    if action == 'admin':
-        name = setting['server']['Name']
-        lambda_url = get_lambda_url(event)
-        return {
-            'statusCode': 200,
-            'headers': { 'Content-Type': 'text/html; charset=UTF-8' },
-            'body': main(name, lambda_url, common_settings, 'admin'),
-        }
-
     try:
+        request_as_admin = get_param(event, 'request_as_admin', 'false')
+        if request_as_admin == 'true' and mode != 'admin':
+            raise 'request as admin, but lambda is running as user.'
+
         if action == 'main':
             name = setting['server']['Name']
             lambda_url = get_lambda_url(event)
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/html; charset=UTF-8' },
-                'body': main(name, lambda_url, common_settings, 'user'),
+                'body': main(name, lambda_url, common_settings, mode),
             }
         if action == "Describe":
             name = setting['server']['Name']
@@ -117,27 +115,20 @@ def do_action(event):
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
             instance_type, max_user = [ (x['instance_type'], x['value']) for x in common_settings['capacities'] if str(x['value']) == capacity ][0]
+            script_arg = 'admin' if request_as_admin == 'true' else 'user'
             update_plugins = get_param(event, 'update_plugins', 'false')
+
+            if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] != 'stopped' ]) > 0:
+                return {
+                    'statusCode': 429,
+                    'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
+                    'body': '{"message":"否定し状態のインスタンスが存在しています。"}',
+                }
+
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'user', update_plugins),
-            }
-        elif action == "CreateInstanceAsAdmin":
-            region = get_param(event, 'region')
-            branch_name = default_settings['branch_name']
-            name = setting['server']['Name']
-            server_name = setting['server']['ServerName']
-            bucket_name = setting['server']['BucketName']
-            version = get_param(event, 'mcversion')
-            open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
-            capacity = get_param(event, 'capacity')
-            instance_type, max_user = [ (x['instance_type'], x['value']) for x in common_settings['capacities'] if str(x['value']) == capacity ][0]
-            update_plugins = get_param(event, 'update_plugins', 'false')
-            return {
-                'statusCode': 200,
-                'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'admin', update_plugins),
+                'body': instance_create.create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins),
             }
         elif action == "SyncInstanceRuning":
             region = get_param(event, 'region')

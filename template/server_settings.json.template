@@ -54,7 +54,8 @@
       "prop_name": "dev",
       "lambda": {
         "path": "test",
-        "name": "dev_minecraft_server_manager",
+        "function_name": "dev_minecraft_server_manager_for_user",
+        "admin_function_name": "dev_minecraft_server_manager_for_admin",
         "region": "ap-northeast-1"
       },
       "server": {
@@ -67,7 +68,8 @@
       "prop_name": "prod",
       "lambda": {
         "path": "console_default",
-        "name": "prod_minecraft_server_manager",
+        "function_name": "prod_minecraft_server_manager_for_user",
+        "admin_function_name": "prod_minecraft_server_manager_for_admin",
         "region": "ap-northeast-1"
       },
       "server": {

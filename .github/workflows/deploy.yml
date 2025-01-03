@@ -36,11 +36,13 @@ jobs:
         shell: bash
         env:
           DIR_PATH: ${{ format('lambda/{0}', fromJSON(steps.get_server_props.outputs.props)['lambda']['path']) }}
-          FUNCTION_NAME: ${{ fromJSON(steps.get_server_props.outputs.props)['lambda']['name'] }}
+          FUNCTION_NAME: ${{ fromJSON(steps.get_server_props.outputs.props)['lambda']['function_name'] }}
+          ADMIN_FUNCTION_NAME: ${{ fromJSON(steps.get_server_props.outputs.props)['lambda']['admin_function_name'] }}
           REGION: ${{ fromJSON(steps.get_server_props.outputs.props)['lambda']['region'] }}
         run: |
           echo "dir_path=${DIR_PATH}" >> "$GITHUB_OUTPUT"
           echo "function_name=${FUNCTION_NAME}" >> "$GITHUB_OUTPUT"
+          echo "admin_function_name=${ADMIN_FUNCTION_NAME}" >> "$GITHUB_OUTPUT"
           echo "region=${REGION}" >> "$GITHUB_OUTPUT"
 
       - name: Export Commit Hash
@@ -79,13 +81,31 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Update Lambda
+      - name: Install python libraries
+        shell: bash
+        working-directory: ${{ steps.lambda_props.outputs.dir_path }}
+        run: |
+          pip3 install awscli
+          pip3 install requests -t .
+
+      - name: Update Lambda for admin
+        shell: bash
+        working-directory: ${{ steps.lambda_props.outputs.dir_path }}
+        env:
+          FUNCTION_NAME: ${{ steps.lambda_props.outputs.admin_function_name }}
+        run: |
+          echo -n "admin" > ./res/txt/function_type.txt
+          rm -rf package.zip
+          zip -r package.zip ./*
+          aws lambda update-function-code --function-name "${FUNCTION_NAME}" --zip-file fileb://package.zip --publish
+
+      - name: Update Lambda for user
         shell: bash
         working-directory: ${{ steps.lambda_props.outputs.dir_path }}
         env:
           FUNCTION_NAME: ${{ steps.lambda_props.outputs.function_name }}
         run: |
-          pip3 install awscli
-          pip3 install requests -t .
+          echo -n "user" > ./res/txt/function_type.txt
+          rm -rf package.zip
           zip -r package.zip ./*
           aws lambda update-function-code --function-name "${FUNCTION_NAME}" --zip-file fileb://package.zip --publish
