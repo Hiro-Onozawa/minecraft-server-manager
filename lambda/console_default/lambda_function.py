@@ -60,7 +60,7 @@ def main(name, lambda_url, common_settings, mode):
         'admin_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if x['only_admin'] ]),
         'user_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if not x['only_admin'] ]),
         'admin_update_plugins_check': '<br><label for="update_plugins">プラグインの更新を実行する</label><input name="update_plugins" value="true" type="checkbox">',
-        'create_instance_button_value': '起動する' if mode != 'admin' else '管理者として起動する'
+        'admin_create_instance_button': '<button id="admin_start" onclick="Start(this, true)" type="submit" name="action" value="CreateInstance">管理者として起動する</button>'
     }
     if mode != 'admin':
         for key in {key for key in replace_obj.keys() if re.match(r'^admin_', key)}:
@@ -85,6 +85,10 @@ def do_action(event):
         setting = json.load(f)
 
     try:
+        request_as_admin = get_param(event, 'request_as_admin', 'false')
+        if request_as_admin == 'true' and mode != 'admin':
+            raise 'request as admin, but lambda is running as user.'
+
         if action == 'main':
             name = setting['server']['Name']
             lambda_url = get_lambda_url(event)
@@ -111,7 +115,7 @@ def do_action(event):
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
             instance_type, max_user = [ (x['instance_type'], x['value']) for x in common_settings['capacities'] if str(x['value']) == capacity ][0]
-            script_arg = mode
+            script_arg = 'admin' if request_as_admin == 'true' else 'user'
             update_plugins = get_param(event, 'update_plugins', 'false')
 
             if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] x != 'stopped' ]) > 0:

@@ -148,10 +148,11 @@ function RedirectInstancePage(publicIpAddress) {
     });
 }
 
-function Start(sender) {
+function Start(sender, request_as_admin = false) {
     UpdateStartButton(true);
     document.querySelector("#result2").innerHTML = '<p>インスタンス作成中...<div class="loader"></div></p>';
     document.querySelector("#parameter-form > #instance_id").removeAttribute("value");
+    document.querySelector("#parameter-form > #request_as_admin").setAttribute("value", request_as_admin);
     XMLHttpRequestSubmit(sender).then((xhr) => {
         let div = document.querySelector("#result2");
         if (xhr.readyState == 4 && xhr.status == 200) {
@@ -169,6 +170,7 @@ function SyncInstanceRuning(sender, instanceId) {
     document.querySelector("#result2").innerHTML = '<p>インスタンス起動中...<div class="loader"></div></p>';
     sender.setAttribute("value", "SyncInstanceRuning");
     document.querySelector("#parameter-form > #instance_id").setAttribute("value", instanceId);
+    document.querySelector("#parameter-form > #request_as_admin").setAttribute("value", false);
     setTimeout(function() {
         XMLHttpRequestSubmit(sender).then((xhr) => {
             let div = document.querySelector("#result2");
