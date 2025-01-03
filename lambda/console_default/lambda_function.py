@@ -113,6 +113,14 @@ def do_action(event):
             instance_type, max_user = [ (x['instance_type'], x['value']) for x in common_settings['capacities'] if str(x['value']) == capacity ][0]
             script_arg = mode
             update_plugins = get_param(event, 'update_plugins', 'false')
+
+            if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] x != 'stopped' ]) > 0:
+                return {
+                    'statusCode': 429,
+                    'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
+                    'body': '{"message":"否定し状態のインスタンスが存在しています。"}',
+                }
+
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
