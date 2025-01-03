@@ -81,23 +81,15 @@ def do_action(event):
     with open('res/json/server_settings.json') as f:
         setting = json.load(f)
 
-    if action == 'admin':
-        name = setting['server']['Name']
-        lambda_url = get_lambda_url(event)
-        return {
-            'statusCode': 200,
-            'headers': { 'Content-Type': 'text/html; charset=UTF-8' },
-            'body': main(name, lambda_url, common_settings, 'admin'),
-        }
-
     try:
-        if action == 'main':
+        if action == 'main' or action == 'admin':
             name = setting['server']['Name']
             lambda_url = get_lambda_url(event)
+            mode = 'user' if action == 'main' else 'admin'
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/html; charset=UTF-8' },
-                'body': main(name, lambda_url, common_settings, 'user'),
+                'body': main(name, lambda_url, common_settings, mode),
             }
         if action == "Describe":
             name = setting['server']['Name']
@@ -107,7 +99,7 @@ def do_action(event):
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
                 'body': instance_describe.describe_action(name, regions),
             }
-        elif action == "CreateInstance":
+        elif action == "CreateInstance" or action == "CreateInstanceAsAdmin":
             region = get_param(event, 'region')
             branch_name = default_settings['branch_name']
             name = setting['server']['Name']
@@ -117,27 +109,12 @@ def do_action(event):
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
             instance_type, max_user = [ (x['instance_type'], x['value']) for x in common_settings['capacities'] if str(x['value']) == capacity ][0]
+            script_arg = 'user' if action == "CreateInstance" else 'admin'
             update_plugins = get_param(event, 'update_plugins', 'false')
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'user', update_plugins),
-            }
-        elif action == "CreateInstanceAsAdmin":
-            region = get_param(event, 'region')
-            branch_name = default_settings['branch_name']
-            name = setting['server']['Name']
-            server_name = setting['server']['ServerName']
-            bucket_name = setting['server']['BucketName']
-            version = get_param(event, 'mcversion')
-            open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
-            capacity = get_param(event, 'capacity')
-            instance_type, max_user = [ (x['instance_type'], x['value']) for x in common_settings['capacities'] if str(x['value']) == capacity ][0]
-            update_plugins = get_param(event, 'update_plugins', 'false')
-            return {
-                'statusCode': 200,
-                'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, 'admin', update_plugins),
+                'body': instance_create.create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins),
             }
         elif action == "SyncInstanceRuning":
             region = get_param(event, 'region')
