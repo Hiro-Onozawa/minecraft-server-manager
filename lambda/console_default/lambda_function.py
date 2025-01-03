@@ -60,7 +60,7 @@ def main(name, lambda_url, common_settings, mode):
         'admin_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if x['only_admin'] ]),
         'user_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if not x['only_admin'] ]),
         'admin_update_plugins_check': '<br><label for="update_plugins">プラグインの更新を実行する</label><input name="update_plugins" value="true" type="checkbox">',
-        'admin_button': '<button id="admin_start" onclick="Start(this)" type="submit" name="action" value="CreateInstanceAsAdmin">管理者として起動する</button>'
+        'create_instance_button_value': '起動する' if mode != 'admin' else '管理者として起動する'
     }
     if mode != 'admin':
         for key in {key for key in replace_obj.keys() if re.match(r'^admin_', key)}:
@@ -73,6 +73,9 @@ def do_action(event):
     with open('res/json/default_settings.json') as f:
         default_settings = json.load(f)
 
+    with open('res/txt/function_type.txt') as f:
+        mode = f.read()
+
     server = default_settings['prop_name']
     action = get_param(event, 'action', 'main')
 
@@ -82,10 +85,9 @@ def do_action(event):
         setting = json.load(f)
 
     try:
-        if action == 'main' or action == 'admin':
+        if action == 'main':
             name = setting['server']['Name']
             lambda_url = get_lambda_url(event)
-            mode = 'user' if action == 'main' else 'admin'
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/html; charset=UTF-8' },
@@ -99,7 +101,7 @@ def do_action(event):
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
                 'body': instance_describe.describe_action(name, regions),
             }
-        elif action == "CreateInstance" or action == "CreateInstanceAsAdmin":
+        elif action == "CreateInstance":
             region = get_param(event, 'region')
             branch_name = default_settings['branch_name']
             name = setting['server']['Name']
@@ -109,7 +111,7 @@ def do_action(event):
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
             instance_type, max_user = [ (x['instance_type'], x['value']) for x in common_settings['capacities'] if str(x['value']) == capacity ][0]
-            script_arg = 'user' if action == "CreateInstance" else 'admin'
+            script_arg = mode
             update_plugins = get_param(event, 'update_plugins', 'false')
             return {
                 'statusCode': 200,
