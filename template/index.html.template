@@ -47,7 +47,7 @@
         padding: 2px 8px;
         background: lightgray;
         font-size: 18px;
-        #color: #fff;
+        /* color: #fff; */
         outline: none;
         border: none;
         border-radius: 10px;
@@ -97,7 +97,7 @@ function Describe() {
             'PublicIpAddress': '/*${{public_ip_address}}*/',
         }
     ];
-    AsyncCreateTable(instances).then((table) => {
+    AsyncCreateTable(instances, () => { setTimeout(function() { window.location = "/*${{console_lambda_url}}*/"; }, 2500); }).then((table) => {
         document.querySelector("#result").replaceChildren(table);
         document.querySelector("#describe").disabled = false;
     });
@@ -157,7 +157,7 @@ function AddTableData(tr, value, add_copy_button = false)
     return td;
 }
 
-function AsyncInstanceDataConvert(instance_data)
+function AsyncInstanceDataConvert(instance_data, on_timeout)
 {
     function ConcertInstanceState(state) {
         switch (state) {
@@ -227,6 +227,7 @@ function AsyncInstanceDataConvert(instance_data)
             };
             xhr.ontimeout = () => {
                 UpdateData({'status':'timeout'});
+                if (on_timeout) { on_timeout(); }
                 resolve(data);
             };
         }
@@ -237,7 +238,7 @@ function AsyncInstanceDataConvert(instance_data)
     });
 }
 
-function AsyncCreateTable(instance_data_list)
+function AsyncCreateTable(instance_data_list, on_timeout)
 {
     const table = document.createElement('table');
     table.setAttribute('class', 'table');
@@ -258,7 +259,7 @@ function AsyncCreateTable(instance_data_list)
         'last_update': '最終更新'
     };
 
-    return Promise.all(instance_data_list.map(instance_data => AsyncInstanceDataConvert(instance_data))).then((values) => {
+    return Promise.all(instance_data_list.map(instance_data => AsyncInstanceDataConvert(instance_data, on_timeout))).then((values) => {
         let tr = document.createElement('tr');
         Object.values(header_keys).map((value) => { AddTableHeader(tr, value); });
         table.appendChild(tr);
