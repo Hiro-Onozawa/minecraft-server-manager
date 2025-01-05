@@ -1,0 +1,23 @@
+name: ShellCheckTest
+
+on:
+  pull_request:
+
+jobs:
+  shell_check_test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: bash
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          check_together: 'yes'
+          scandir: './bash'
+       
