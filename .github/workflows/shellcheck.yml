@@ -13,7 +13,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          sparse-checkout: bash
+          sparse-checkout: |
+            .github/problem-matcher
+            bash
+
+      - name: Add Problem Matcher
+        shell: bash
+        run: echo "::add-matcher::.github/problem-matcher/shellcheck.json"
 
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
