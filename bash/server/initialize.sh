@@ -1,12 +1,12 @@
 #!/bin/bash
 
-cd $(dirname "$(dirname "$0")")
+cd "$(dirname "$(dirname "$0")")" || exit 1
 PATH=$PATH:$(pwd)
 
 source server/setup_env.sh
 
 mkdir -p ${SERVER_HOME}
-cd ${SERVER_HOME}
+cd "${SERVER_HOME}" || exit 1
 
 ARG_OWNER_NAME="$1"
 ARG_MAX_PLAYERS="$2"
@@ -33,15 +33,15 @@ sed -e 's/rcon.password=/rcon.password='"$(cat rcon.pass)"'/' -e 's/motd=/motd='
 echo "eula=true" > eula.txt
 
 mkdir -p plugins
-pushd plugins
+pushd plugins || exit 1
   if [ "${ARG_UPDATE_PLUGINS}" = "true" ]; then
     # wget -q -O multiverse-core.jar https://dev.bukkit.org/projects/multiverse-core/files/latest
     # wget -q -O multiverse-portals.jar https://dev.bukkit.org/projects/multiverse-portals/files/latest
-    wget -q -O LuckPerms-Bukkit.jar $(wget -q -O - https://metadata.luckperms.net/data/all | jq -r '.downloads.bukkit')
+    wget -q -O LuckPerms-Bukkit.jar "$(wget -q -O - https://metadata.luckperms.net/data/all | jq -r '.downloads.bukkit')"
     wget -q -O geyser.jar https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot
     wget -q -O floodgate.jar https://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot
   fi
-popd
+popd || exit 1
 
 sudo apt update
 sudo apt install -y "${ARG_JDK_VERSION}"

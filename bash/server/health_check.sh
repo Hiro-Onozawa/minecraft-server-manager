@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd $(dirname "$(dirname "$0")")
+cd "$(dirname "$(dirname "$0")")" || exit 1
 PATH=$PATH:$(pwd)
 
 source server/setup_env.sh
