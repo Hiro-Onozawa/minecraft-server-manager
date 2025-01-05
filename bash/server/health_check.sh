@@ -12,7 +12,8 @@ if systemctl is-active --quiet minecraft-spigot-server.service; then
       -e 's/Connection failed.//' \
       -e 's/Error ([0-9]+):? ?(.*?)/{"status":"offline","error":{"number":\1,"message":"\2"}}/' \
       -e 't; q100')
-  if [ $? -eq 0 ]; then
+  MCRON_EXIT_CODE=$?
+  if [ "${MCRON_EXIT_CODE}" -eq 0 ]; then
     if [ "$(echo "${RESP}" | jq -r '.status')" = "online" ]; then
       # バージョン情報のキャッシュが無ければ作成する
       if [ ! -s "${SERVER_SUPPORT_VERSIONS_PATH}" ]; then
