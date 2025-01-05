@@ -50,5 +50,6 @@ jobs:
         shell: bash
         working-directory: bash
         run: |
-          "${RUNNER_TEMP}/shellcheck" --format=gcc ./*.sh ./*/*.sh
+          "${RUNNER_TEMP}/shellcheck" --format=gcc ./*.sh ./*/*.sh \
+            | sed 's|^./|'"$(pwd)"'/|g'
        
