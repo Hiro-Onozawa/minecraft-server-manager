@@ -16,7 +16,7 @@ cat - > "${tmpfile}"
 
 TARGET="EVERYONE"
 if [ "$#" -ge 1 ]; then
-  if [ $1 = "admin" ]; then
+  if [ "$1" = "admin" ]; then
     TARGET="ONLY_ADMIN"
   fi
 fi
