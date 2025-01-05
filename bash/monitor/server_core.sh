@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-cd $(dirname "$(dirname "$0")")
+cd "$(dirname "$(dirname "$0")")" || exit 1
 PATH=$PATH:$(pwd)
 
 source server/setup_env.sh
@@ -16,7 +16,7 @@ SERVER_STATUS="$(echo "${SERVER_HEALTH}" | jq -r '.status')"
 SERVER_ACTIVE_USER="$(echo "${SERVER_HEALTH}" | jq -r '.active')"
 if [ "${SERVER_STATUS}" = "online" ]; then
   # State : Start, Left, Joined, Stop
-  if [ "$(echo "${SERVER_HEALTH}" | jq -r '.active')" -gt 0 ]; then
+  if [ "${SERVER_ACTIVE_USER}" -gt 0 ]; then
     # Joined
     if [ "${SERVER_LAST_STATE}" != "Joined" ]; then
       monitor/server_on_joined.sh
