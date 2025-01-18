@@ -110,7 +110,6 @@ def do_action(event):
             branch_name = default_settings['branch_name']
             name = setting['server']['Name']
             server_name = setting['server']['ServerName']
-            bucket_name = setting['server']['BucketName']
             version = get_param(event, 'mcversion')
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
@@ -122,6 +121,14 @@ def do_action(event):
             with open('res/txt/discord_webhook_admin.txt') as f:
                 discord_webhook_admin = f.read()
             lambda_url = get_lambda_url(event)
+            aws_settings = {
+                'security_group_name': setting['aws']['SecurityGroupName'],
+                'key_pair_name': setting['aws']['KeyPairName'],
+                'instance_profile_name': setting['aws']['InstanceProfileName'],
+                'subnet_name': setting['aws']['SubnetName'],
+                'instance_type': instance_type,
+                'bucket_name': setting['aws']['ArchiveBucketName']
+            }
 
             if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] != 'terminated' ]) > 0:
                 return {
@@ -133,7 +140,7 @@ def do_action(event):
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, lambda_url),
+                'body': instance_create.create_action(region, branch_name, name, server_name, aws_settings, version, open_jdk_ver, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, lambda_url),
             }
         elif action == "SyncInstanceRuning":
             region = get_param(event, 'region')
@@ -144,7 +151,7 @@ def do_action(event):
                 'body': instance_create.sync_action(region, instance_id),
             }
         elif action == "ListArchive":
-            bucket_name = setting['server']['BucketName']
+            bucket_name = setting['aws']['ArchiveBucketName']
             server_name = setting['server']['ServerName']
             return {
                 'statusCode': 200,

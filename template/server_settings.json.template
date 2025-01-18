@@ -60,8 +60,14 @@
       },
       "server": {
         "Name": "Dev Minecraft Server",
-        "ServerName": "Dev_Minecraft_Server",
-        "BucketName": "Minecraft_Server_Archive_Bucket"
+        "ServerName": "Dev_Minecraft_Server"
+      },
+      "aws": {
+        "ArchiveBucketName": "Minecraft_Server_Archive_Bucket",
+        "SecurityGroupName": "security_group_name",
+        "KeyPairName": "key_pair_name",
+        "InstanceProfileName": "instance_profile_name",
+        "SubnetName": "server_subnet_name"
       },
       "notificate": {
         "user_secrets_key_name": "DISCORD_WEBHOOK_USER_DEV",
@@ -78,8 +84,14 @@
       },
       "server": {
         "Name": "Prod Minecraft Server",
-        "ServerName": "Prod_Minecraft_Server",
-        "BucketName": "Minecraft_Server_Archive_Bucket"
+        "ServerName": "Prod_Minecraft_Server"
+      },
+      "aws": {
+        "ArchiveBucketName": "Minecraft_Server_Archive_Bucket",
+        "SecurityGroupName": "security_group_name",
+        "KeyPairName": "key_pair_name",
+        "InstanceProfileName": "instance_profile_name",
+        "SubnetName": "server_subnet_name"
       },
       "notificate": {
         "user_secrets_key_name": "DISCORD_WEBHOOK_USER_PROD",

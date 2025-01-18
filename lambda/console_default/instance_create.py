@@ -2,8 +2,8 @@ import base64
 import boto3
 import json
 
-def create_action(region, branch_name, name, server_name, bucket_name, version, open_jdk_ver, instance_type, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url):
-    print(region, version, instance_type, script_arg)
+def create_action(region, branch_name, name, server_name, aws_settings, version, open_jdk_ver, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url):
+    print(region, version, script_arg)
 
     def parse_device_mapping(mapping):
         ret = {}
@@ -93,10 +93,7 @@ def create_action(region, branch_name, name, server_name, bucket_name, version, 
             ]
         )
         return [ x['Location'] for x in response['InstanceTypeOfferings'] if x['LocationType'] == 'availability-zone' and x['InstanceType'] == instance_type ]
-    def get_default_vpc_id(client):
-        response = client.describe_vpcs()
-        return response['Vpcs'][0]['VpcId']
-    def get_subnet_id(client, availability_zones, vpc_id):
+    def get_subnet_id(client, availability_zones, subnet_name):
         response = client.describe_subnets(
             Filters=[
                 {
@@ -104,28 +101,30 @@ def create_action(region, branch_name, name, server_name, bucket_name, version, 
                     'Values': availability_zones
                 },
                 {
-                    'Name': 'vpc-id',
-                    'Values': [ vpc_id ]
+                    'Name': 'tag:Name',
+                    'Values': [
+                        subnet_name,
+                    ]
                 }
             ]
         )
         return response['Subnets'][0]['SubnetId']
-    def get_security_group_id(client):
+    def get_security_group_id(client, security_group_name):
         response = client.describe_security_groups(
             Filters=[
                 {
                     'Name': 'tag:Name',
                     'Values': [
-                        'MinecraftDefaultSecurityGroup',
+                        security_group_name,
                     ]
                 }
             ]
         )
         return response['SecurityGroups'][0]['GroupId']
 
-    def get_instance_profile_arn(client):
+    def get_instance_profile_arn(client, instance_profile_name):
         response = client.get_instance_profile(
-            InstanceProfileName='Minecraft_Server_Instance_Role'
+            InstanceProfileName=instance_profile_name
         )
         return response['InstanceProfile']['Arn']
 
@@ -133,25 +132,33 @@ def create_action(region, branch_name, name, server_name, bucket_name, version, 
     ec2 = boto3.client('ec2', region_name=region)
     iam = boto3.client('iam')
     ami_image = get_ami_image(ec2)
+
+    security_group_name = aws_settings['security_group_name']
+    key_pair_name = aws_settings['key_pair_name']
+    instance_profile_name = aws_settings['instance_profile_name']
+    subnet_name = aws_settings['subnet_name']
+    instance_type = aws_settings['instance_type']
+    bucket_name = aws_settings['bucket_name']
+
     resp = ec2.run_instances(
         MaxCount=1, MinCount=1,
         ImageId=get_ami_image_id(ami_image),
         InstanceType=instance_type,
-        KeyName='MinecraftDefaultKeyPair',
+        KeyName=key_pair_name,
         EbsOptimized=True,
         InstanceInitiatedShutdownBehavior='terminate',
         BlockDeviceMappings=get_block_device_mappings(ami_image),
         UserData=to_base64(get_script(script_arg, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url)),
         NetworkInterfaces=[
             {
-                'SubnetId': get_subnet_id(ec2, get_supported_availability_zones(ec2, instance_type), get_default_vpc_id(ec2)),
+                'SubnetId': get_subnet_id(ec2, get_supported_availability_zones(ec2, instance_type), subnet_name),
                 'AssociatePublicIpAddress': True,
                 'DeviceIndex': 0,
-                'Groups': [ get_security_group_id(ec2) ]
+                'Groups': [ get_security_group_id(ec2, security_group_name) ]
             }
         ],
         IamInstanceProfile={
-            'Arn': get_instance_profile_arn(iam)
+            'Arn': get_instance_profile_arn(iam, instance_profile_name)
         },
         CreditSpecification={
             'CpuCredits': 'unlimited'
