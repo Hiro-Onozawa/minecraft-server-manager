@@ -90,7 +90,7 @@ def do_action(event):
             raise 'request as admin, but lambda is running as user.'
 
         if action == 'main':
-            name = setting['server']['Name']
+            name = setting['server']['name']
             lambda_url = get_lambda_url(event)
             return {
                 'statusCode': 200,
@@ -98,8 +98,8 @@ def do_action(event):
                 'body': main(name, lambda_url, common_settings, mode),
             }
         if action == "Describe":
-            name = setting['server']['Name']
-            regions = [ setting['aws']['Region'] ]
+            name = setting['server']['name']
+            regions = [ setting['aws']['region'] ]
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
@@ -107,8 +107,8 @@ def do_action(event):
             }
         elif action == "CreateInstance":
             branch_name = default_settings['branch_name']
-            name = setting['server']['Name']
-            server_name = setting['server']['ServerName']
+            name = setting['server']['name']
+            server_name = setting['server']['server_name']
             version = get_param(event, 'mcversion')
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
@@ -120,15 +120,15 @@ def do_action(event):
             with open('res/txt/discord_webhook_admin.txt') as f:
                 discord_webhook_admin = f.read()
             lambda_url = get_lambda_url(event)
-            region = setting['aws']['Region']
+            region = setting['aws']['region']
             aws_settings = {
                 'region': region,
-                'security_group_name': setting['aws']['SecurityGroupName'],
-                'key_pair_name': setting['aws']['KeyPairName'],
-                'instance_profile_name': setting['aws']['InstanceProfileName'],
-                'subnet_name': setting['aws']['SubnetName'],
+                'security_group_name': setting['aws']['security_group_name'],
+                'key_pair_name': setting['aws']['key_pair_name'],
+                'instance_profile_name': setting['aws']['instance_profile_name'],
+                'subnet_name': setting['aws']['subnet_name'],
                 'instance_type': instance_type,
-                'bucket_name': setting['aws']['ArchiveBucketName']
+                'bucket_name': setting['aws']['archive_bucket_name']
             }
 
             if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] != 'terminated' ]) > 0:
@@ -144,7 +144,7 @@ def do_action(event):
                 'body': instance_create.create_action(branch_name, name, server_name, aws_settings, version, open_jdk_ver, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, lambda_url),
             }
         elif action == "SyncInstanceRuning":
-            region = setting['aws']['Region']
+            region = setting['aws']['region']
             instance_id = get_param(event, 'instance_id')
             return {
                 'statusCode': 200,
@@ -152,8 +152,8 @@ def do_action(event):
                 'body': instance_create.sync_action(region, instance_id),
             }
         elif action == "ListArchive":
-            bucket_name = setting['aws']['ArchiveBucketName']
-            server_name = setting['server']['ServerName']
+            bucket_name = setting['aws']['archive_bucket_name']
+            server_name = setting['server']['server_name']
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
