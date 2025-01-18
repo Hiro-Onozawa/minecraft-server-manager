@@ -16,17 +16,21 @@ cat - > "${tmpfile}"
 
 TARGET="EVERYONE"
 if [ "$#" -ge 1 ]; then
-  if [ $1 = "admin" ]; then
+  if [ "$1" = "admin" ]; then
     TARGET="ONLY_ADMIN"
   fi
 fi
 
 if [ "${TARGET}" != "ONLY_ADMIN" ]; then
-cat ../settings/notification.cfg \
-  | jq -r -c --arg tmpfile "${tmpfile}" '.[] | "cat \"" + $tmpfile + "\" | ./send_message/send_to_" + .type + ".sh '"'"'" + (. | tostring) + "'"'"'"' \
+jq -r -c \
+  --arg tmpfile "${tmpfile}" \
+  '.[] | "cat \"" + $tmpfile + "\" | ./send_message/send_to_" + .type + ".sh '"'"'" + (. | tostring) + "'"'"'"' \
+  ../settings/notification.cfg \
   | bash
 fi
 
-cat ../settings/notification_admin.cfg \
-  | jq -r -c --arg tmpfile "${tmpfile}" '.[] | "cat \"" + $tmpfile + "\" | ./send_message/send_to_" + .type + ".sh '"'"'" + (. | tostring) + "'"'"'"' \
+jq -r -c \
+  --arg tmpfile "${tmpfile}" \
+  '.[] | "cat \"" + $tmpfile + "\" | ./send_message/send_to_" + .type + ".sh '"'"'" + (. | tostring) + "'"'"'"' \
+  ../settings/notification_admin.cfg \
   | bash

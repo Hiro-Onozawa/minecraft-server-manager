@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd $(dirname "$0")
+cd "$(dirname "$0")" || exit 1
 PATH=$PATH:$(pwd)
 
 find . -type f -name '*.sh' -exec chmod +x \{\} \;

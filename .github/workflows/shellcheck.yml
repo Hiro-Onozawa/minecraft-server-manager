@@ -1,0 +1,55 @@
+name: ShellCheckTest
+
+on:
+  pull_request:
+
+jobs:
+  shell_check_test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/problem-matcher
+            bash
+
+      - name: Add Problem Matcher
+        shell: bash
+        run: echo "::add-matcher::.github/problem-matcher/shellcheck.json"
+
+      - name: Download shellcheck
+        shell: bash
+        env:
+          INPUT_VERSION: 'stable'
+        run: |
+          if [[ "${RUNNER_OS}" == "macOS" ]]; then
+            osvariant="darwin"
+          else
+            osvariant="linux"
+          fi
+
+          baseurl="https://github.com/koalaman/shellcheck/releases/download"
+
+          curl -Lso "${RUNNER_TEMP}/sc.tar.xz" \
+            "${baseurl}/${INPUT_VERSION}/shellcheck-${INPUT_VERSION}.${osvariant}.x86_64.tar.xz"
+
+          tar -xf "${RUNNER_TEMP}/sc.tar.xz" -C "${RUNNER_TEMP}"
+          mv "${RUNNER_TEMP}/shellcheck-${INPUT_VERSION}/shellcheck" \
+            "${RUNNER_TEMP}/shellcheck"
+
+      - name: Display shellcheck version
+        shell: bash
+        run: |
+          "${RUNNER_TEMP}/shellcheck" --version
+
+      - name: Run ShellCheck
+        shell: bash
+        working-directory: bash
+        run: |
+          "${RUNNER_TEMP}/shellcheck" --format=gcc ./*.sh ./*/*.sh \
+            | sed 's|^./|'"$(pwd)"'/|g'
+       
