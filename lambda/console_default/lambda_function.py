@@ -48,6 +48,51 @@ def main(name, lambda_url, common_settings, mode):
     with open('style.css') as f:
         style = f.read()
 
+    difficulty = [
+        {
+            'name': 'ピースフル',
+            'value': 'peaceful',
+            'only_admin': True
+        },
+        {
+            'name': 'イージー',
+            'value': 'easy',
+            'only_admin': False
+        },
+        {
+            'name': 'ノーマル',
+            'value': 'normal',
+            'only_admin': False
+        },
+        {
+            'name': 'ハード',
+            'value': 'hard',
+            'only_admin': False
+        }
+    ]
+    gamemode = [
+        {
+            'name': 'サバイバル',
+            'value': 'survival',
+            'only_admin': False
+        },
+        {
+            'name': 'クリエイティブ',
+            'value': 'creative',
+            'only_admin': True
+        },
+        {
+            'name': 'アドベンチャー',
+            'value': 'adventure',
+            'only_admin': True
+        },
+        {
+            'name': 'スペクテイター',
+            'value': 'spectator',
+            'only_admin': True
+        }
+    ]
+
     replace_obj = {
         'server_name': name,
         'style': style,
@@ -59,6 +104,12 @@ def main(name, lambda_url, common_settings, mode):
         'server_version': ''.join([ '<option value="%s">%s</option>' % (x['value'], x['name']) for x in common_settings['versions'] ]),
         'admin_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if x['only_admin'] ]),
         'user_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if not x['only_admin'] ]),
+        'admin_difficulty': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in difficulty if x['only_admin'] ]),
+        'user_difficulty': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in difficulty if not x['only_admin'] ]),
+        'admin_gamemode': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in gamemode if x['only_admin'] ]),
+        'user_gamemode': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in gamemode if not x['only_admin'] ]),
+        'admin_world_size_edit': '<br><label for="world_size">プラグインの更新を実行する</label><input name="world_size" value="8192" type="number" min="1" max="29999984">',
+        'admin_hardcore_check': '<br><label for="hardcore">ハードコアモードで起動する</label><input name="hardcore" value="false" type="checkbox">',
         'admin_update_plugins_check': '<br><label for="update_plugins">プラグインの更新を実行する</label><input name="update_plugins" value="true" type="checkbox">',
         'admin_create_instance_button': '<button id="admin_start" onclick="Start(this, true)" type="submit" name="action" value="CreateInstance">管理者として起動する</button>'
     }
