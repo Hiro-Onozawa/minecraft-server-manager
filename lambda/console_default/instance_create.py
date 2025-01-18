@@ -2,8 +2,8 @@ import base64
 import boto3
 import json
 
-def create_action(region, branch_name, name, server_name, aws_settings, version, open_jdk_ver, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url):
-    print(region, version, script_arg)
+def create_action(branch_name, name, server_name, aws_settings, version, open_jdk_ver, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url):
+    print(version, script_arg)
 
     def parse_device_mapping(mapping):
         ret = {}
@@ -129,7 +129,7 @@ def create_action(region, branch_name, name, server_name, aws_settings, version,
         return response['InstanceProfile']['Arn']
 
     jsonParam = ''
-    ec2 = boto3.client('ec2', region_name=region)
+    ec2 = boto3.client('ec2', region_name=aws_settings['region'])
     iam = boto3.client('iam')
     ami_image = get_ami_image(ec2)
 

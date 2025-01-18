@@ -63,6 +63,7 @@
         "ServerName": "Dev_Minecraft_Server"
       },
       "aws": {
+        "Region": "ap-northeast-1",
         "ArchiveBucketName": "Minecraft_Server_Archive_Bucket",
         "SecurityGroupName": "security_group_name",
         "KeyPairName": "key_pair_name",
@@ -87,6 +88,7 @@
         "ServerName": "Prod_Minecraft_Server"
       },
       "aws": {
+        "Region": "ap-northeast-1",
         "ArchiveBucketName": "Minecraft_Server_Archive_Bucket",
         "SecurityGroupName": "security_group_name",
         "KeyPairName": "key_pair_name",

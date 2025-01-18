@@ -99,14 +99,13 @@ def do_action(event):
             }
         if action == "Describe":
             name = setting['server']['Name']
-            regions = [ 'ap-northeast-1', 'ap-south-1' ]
+            regions = [ setting['aws']['Region'] ]
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
                 'body': instance_describe.describe_action(name, regions),
             }
         elif action == "CreateInstance":
-            region = get_param(event, 'region')
             branch_name = default_settings['branch_name']
             name = setting['server']['Name']
             server_name = setting['server']['ServerName']
@@ -121,7 +120,9 @@ def do_action(event):
             with open('res/txt/discord_webhook_admin.txt') as f:
                 discord_webhook_admin = f.read()
             lambda_url = get_lambda_url(event)
+            region = setting['aws']['Region']
             aws_settings = {
+                'region': region,
                 'security_group_name': setting['aws']['SecurityGroupName'],
                 'key_pair_name': setting['aws']['KeyPairName'],
                 'instance_profile_name': setting['aws']['InstanceProfileName'],
@@ -140,10 +141,10 @@ def do_action(event):
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(region, branch_name, name, server_name, aws_settings, version, open_jdk_ver, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, lambda_url),
+                'body': instance_create.create_action(branch_name, name, server_name, aws_settings, version, open_jdk_ver, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, lambda_url),
             }
         elif action == "SyncInstanceRuning":
-            region = get_param(event, 'region')
+            region = setting['aws']['Region']
             instance_id = get_param(event, 'instance_id')
             return {
                 'statusCode': 200,
