@@ -47,6 +47,50 @@
         "only_admin": false,
         "instance_type": "t3a.large"
       }
+    ],
+    "difficulty":[
+      {
+        "name": "ピースフル",
+        "value": "peaceful",
+        "only_admin": true
+      },
+      {
+        "name": "イージー",
+        "value": "easy",
+        "only_admin": false
+      },
+      {
+        "name": "ノーマル",
+        "value": "normal",
+        "only_admin": false
+      },
+      {
+        "name": "ハード",
+        "value": "hard",
+        "only_admin": false
+      }
+    ],
+    "gamemode":[
+      {
+        "name": "サバイバル",
+        "value": "survival",
+        "only_admin": false
+      },
+      {
+        "name": "クリエイティブ",
+        "value": "creative",
+        "only_admin": true
+      },
+      {
+        "name": "アドベンチャー",
+        "value": "adventure",
+        "only_admin": true
+      },
+      {
+        "name": "スペクテイター",
+        "value": "spectator",
+        "only_admin": true
+      }
     ]
   },
   "servers":[
