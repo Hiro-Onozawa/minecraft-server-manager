@@ -184,7 +184,11 @@ def do_action(event):
                 'server_name': setting['server']['server_name'],
                 'version': version,
                 'open_jdk_ver': open_jdk_ver,
-                'max_user': max_user
+                'max_user': max_user,
+                'difficulty': get_param(event, 'difficulty', 'easy'),
+                'gamemode': get_param(event, 'gamemode', 'survival'),
+                'world_size': get_param(event, 'world_size', None),
+                'hardcore': get_param(event, 'hardcore', None)
             }
             discord_settings = {
                 'webhook_user': discord_webhook_user,

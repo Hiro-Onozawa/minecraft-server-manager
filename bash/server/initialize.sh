@@ -10,8 +10,12 @@ cd "${SERVER_HOME}" || exit 1
 
 ARG_OWNER_NAME="$1"
 ARG_MAX_PLAYERS="$2"
-ARG_JDK_VERSION="$3"
-ARG_UPDATE_PLUGINS="$4"
+ARG_DIFFICULTY="$3"
+ARG_GAMEMODE="$4"
+ARG_WORLD_SIZE="$5"
+ARG_IS_HARDCORE="$6"
+ARG_JDK_VERSION="$7"
+ARG_UPDATE_PLUGINS="$8"
 
 if [ "${ARG_OWNER_NAME}" = "user" ]; then
   LATEST_ARCHIVE_KEY=$(aws s3api list-objects-v2 --bucket "${BUCKET_NAME}" --prefix "${SERVER_NAME}" | jq -r '.Contents | sort_by(.LastModified) | reverse | .[] | select(.StorageClass == "STANDARD") | .Key' | head -n 1)
@@ -32,11 +36,32 @@ head -c 64 /dev/random | base64 | tr -d '/+' | head -c 24 > rcon.pass
 if [ ! -f "server.properties" ]; then
   cp /home/ubuntu/workspace/user_util/template/server.properties.template server.properties
 fi
-sed -i \
-  -e 's/^rcon\.password=.\+$/rcon.password='"$(cat rcon.pass)"'/' \
-  -e 's/^motd=.\+$/motd='"${SERVER_NAME} (${SERVER_VERSION})"'/' \
-  -e 's/^max-players=.\+$/max-players='"${ARG_MAX_PLAYERS}"'/' \
-  server.properties
+cp server.properties server.properties.old
+awk -F "=" \
+  -v rcon_password="$(cat rcon.pass)" \
+  -v motd="${SERVER_NAME} (${SERVER_VERSION})" \
+  -v max_players="${ARG_MAX_PLAYERS}" \
+  -v gamemode="${ARG_GAMEMODE}" \
+  -v difficulty="${ARG_DIFFICULTY}" \
+  -v world_size="${ARG_WORLD_SIZE}" \
+  -v hardcore="${ARG_IS_HARDCORE}" \
+  '
+  function get_value(v1, v2, v3) {
+    return v1 == "" ? (v2 == "" ? v3 : v2) : v1
+  }
+  NF>=2{ key=$1; value=substr($0, length($1)+2); dic[key]=value }
+  END{
+    dic["rcon.password"]  = rcon_password
+    dic["motd"]           = motd
+    dic["max-players"]    = max_players
+    dic["gamemode"]       = gamemode
+    dic["difficulty"]     = difficulty
+    dic["max-world-size"] = get_value(world_size, dic["max-world-size"], 8192)
+    dic["hardcore"]       = get_value(hardcore, dic["hardcore"], false)
+
+    for (key in dic) { print key "=" dic[key] }
+  }
+  ' server.properties.old > server.properties
 echo "eula=true" > eula.txt
 
 mkdir -p plugins

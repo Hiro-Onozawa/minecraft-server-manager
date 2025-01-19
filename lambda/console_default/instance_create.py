@@ -40,12 +40,17 @@ def create_action(branch_name, minecraft_settings, name, aws_settings, script_ar
             'server_name': minecraft_settings['server_name'],
             'bucket_name': bucket_name,
             'max_user': minecraft_settings['max_user'],
+            'difficulty': minecraft_settings['difficulty'],
+            'gamemode': minecraft_settings['gamemode'],
+            'world_size': minecraft_settings['world_size'],
+            'hardcore': minecraft_settings['hardcore'],
             'open_jdk_ver': minecraft_settings['open_jdk_ver'],
             'update_plugins': update_plugins,
             'discord_webhook_user': discord_settings['webhook_user'],
             'discord_webhook_admin': discord_settings['webhook_admin'],
             'console_lambda_url': console_lambda_url
         }
+        instance_params_obj = { key: val for key, val in instance_params_obj if val is not None }
         return user_data.replace('%%BRANCH_NAME%%', branch_name).replace('%%INSTANCE_PARAMS_JSON%%', json.dumps(instance_params_obj, ensure_ascii=False, indent=None))
 
     def get_ami_image(client):
