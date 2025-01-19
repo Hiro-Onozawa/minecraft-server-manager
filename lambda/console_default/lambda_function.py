@@ -38,13 +38,13 @@ def validate_minecraft_settings(is_admin, common_settings, minecraft_settings):
     if is_admin:
         return None
 
-    if next(filter(lambda x: str(x['value']) == minecraft_settings['max_user'], common_settings['capacities']), {'only_admin': True})['only_admin']:
+    if next(filter(lambda x: x['value'] == minecraft_settings['max_user'], common_settings['capacities']), {'only_admin': True})['only_admin']:
         return 'try to setting max_user as %s, but lambda is running as user.' % minecraft_settings['max_user']
 
-    if next(filter(lambda x: str(x['value']) == minecraft_settings['difficulty'], common_settings['difficulty']), {'only_admin': True})['only_admin']:
+    if next(filter(lambda x: x['value'] == minecraft_settings['difficulty'], common_settings['difficulty']), {'only_admin': True})['only_admin']:
         return 'try to setting difficulty as %s, but lambda is running as user.' % minecraft_settings['difficulty']
 
-    if next(filter(lambda x: str(x['value']) == minecraft_settings['gamemode'], common_settings['gamemode']), {'only_admin': True})['only_admin']:
+    if next(filter(lambda x: x['value'] == minecraft_settings['gamemode'], common_settings['gamemode']), {'only_admin': True})['only_admin']:
         return 'try to setting gamemode as %s, but lambda is running as user.' % minecraft_settings['gamemode']
 
     if minecraft_settings['world_size'] is not None:
