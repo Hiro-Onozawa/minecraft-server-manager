@@ -34,11 +34,10 @@ def make_node(name, text, attributes=None):
 def make_html(headContents, bodyContents):
     return '<!DOCTYPE html>' + make_node('html', ''.join([make_node('head', ''.join(headContents)), make_node('body', ''.join(bodyContents))]))
 
-def validate_minecraft_settings(is_admin, minecraft_settings):
+def validate_minecraft_settings(is_admin, common_settings, minecraft_settings):
     if is_admin:
         return None
 
-    [ (x['instance_type'], x['value']) for x in common_settings['capacities'] if str(x['value']) == capacity ][0]
     if next(filter(lambda x: str(x['value']) == minecraft_settings['max_user'], common_settings['capacities']), {'only_admin': True})['only_admin']:
         return 'try to setting max_user as %s, but lambda is running as user.' % minecraft_settings['max_user']
 
@@ -172,7 +171,7 @@ def do_action(event):
                 'webhook_admin': discord_webhook_admin
             }
 
-            validate_massage = validate_minecraft_settings(mode == 'admin', minecraft_settings)
+            validate_massage = validate_minecraft_settings(mode == 'admin', common_settings, minecraft_settings)
             if validate_massage is not None:
                 return {
                     'statusCode': 429,
