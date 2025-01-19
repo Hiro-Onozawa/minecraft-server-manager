@@ -30,20 +30,22 @@
         <select name="capacity" id="capacity">
             /*${{admin_capacity}}*/
             /*${{user_capacity}}*/
-        </select>
+        </select><br>
+        <label for="difficulty">難易度</label>
         <select name="difficulty" id="difficulty">
             /*${{admin_difficulty}}*/
             /*${{user_difficulty}}*/
-        </select>
+        </select><br>
+        <label for="gamemode">ゲームモード</label>
         <select name="gamemode" id="gamemode">
             /*${{admin_gamemode}}*/
             /*${{user_gamemode}}*/
-        </select>
+        </select><br>
         /*${{admin_world_size_edit}}*/
         /*${{admin_hardcore_check}}*/
         /*${{admin_update_plugins_check}}*/
-        <input id="request_as_admin" type="hidden" name="request_as_admin" value="false"><br>
-        <input id="instance_id" type="hidden" name="instance_id" value=""><br>
+        <input id="request_as_admin" type="hidden" name="request_as_admin" value="false">
+        <input id="instance_id" type="hidden" name="instance_id" value="">
         <button id="start" onclick="Start(this)" type="submit" name="action" value="CreateInstance">起動する</button>
         /*${{admin_create_instance_button}}*/
     </form>

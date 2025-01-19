@@ -108,9 +108,9 @@ def main(name, lambda_url, common_settings, mode):
         'user_difficulty': ''.join([ '<option value="%s">%s</option>' % (x['value'], x['name']) for x in difficulty if not x['only_admin'] ]),
         'admin_gamemode': ''.join([ '<option value="%s">%s</option>' % (x['value'], x['name']) for x in gamemode if x['only_admin'] ]),
         'user_gamemode': ''.join([ '<option value="%s">%s</option>' % (x['value'], x['name']) for x in gamemode if not x['only_admin'] ]),
-        'admin_world_size_edit': '<br><label for="world_size">プラグインの更新を実行する</label><input name="world_size" value="8192" type="number" min="1" max="29999984">',
-        'admin_hardcore_check': '<br><label for="hardcore">ハードコアモードで起動する</label><input name="hardcore" value="false" type="checkbox">',
-        'admin_update_plugins_check': '<br><label for="update_plugins">プラグインの更新を実行する</label><input name="update_plugins" value="true" type="checkbox">',
+        'admin_world_size_edit': '<label for="world_size">プラグインの更新を実行する</label><input name="world_size" value="8192" type="number" min="1" max="29999984"><br>',
+        'admin_hardcore_check': '<label for="hardcore">ハードコアモードで起動する</label><input name="hardcore" value="false" type="checkbox"><br>',
+        'admin_update_plugins_check': '<label for="update_plugins">プラグインの更新を実行する</label><input name="update_plugins" value="true" type="checkbox"><br>',
         'admin_create_instance_button': '<button id="admin_start" onclick="Start(this, true)" type="submit" name="action" value="CreateInstance">管理者として起動する</button>'
     }
     if mode != 'admin':
