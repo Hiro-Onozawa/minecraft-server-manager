@@ -30,7 +30,7 @@ def create_action(branch_name, minecraft_settings, name, aws_settings, script_ar
 
     def to_base64(script):
         return base64.b64encode(script.encode()).decode()
-    def get_script(arg_value, minecraft_settings, bucket_name, update_plugins, discord_settings, console_lambda_url):
+    def get_script(minecraft_settings, arg_value, bucket_name, update_plugins, discord_settings, console_lambda_url):
         user_data = ""
         with open('res/bash/user_data.sh') as f:
             user_data = f.read()
@@ -50,7 +50,7 @@ def create_action(branch_name, minecraft_settings, name, aws_settings, script_ar
             'discord_webhook_admin': discord_settings['webhook_admin'],
             'console_lambda_url': console_lambda_url
         }
-        instance_params_obj = { key: val for key, val in instance_params_obj if val is not None }
+        instance_params_obj = { key: val for key, val in instance_params_obj.items() if val is not None }
         return user_data.replace('%%BRANCH_NAME%%', branch_name).replace('%%INSTANCE_PARAMS_JSON%%', json.dumps(instance_params_obj, ensure_ascii=False, indent=None))
 
     def get_ami_image(client):
