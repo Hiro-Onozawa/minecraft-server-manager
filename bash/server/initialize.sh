@@ -18,11 +18,13 @@ ARG_JDK_VERSION="$7"
 ARG_UPDATE_PLUGINS="$8"
 
 if [ "${ARG_OWNER_NAME}" = "user" ]; then
-  LATEST_ARCHIVE_KEY=$(aws s3api list-objects-v2 --bucket "${BUCKET_NAME}" --prefix "${SERVER_NAME}" | jq -r '.Contents | sort_by(.LastModified) | reverse | .[] | select(.StorageClass == "STANDARD") | .Key' | head -n 1)
-  LATEST_ARCHIVE_NAME=${LATEST_ARCHIVE_KEY##"${SERVER_NAME}/"}
-  aws s3 cp "s3://${BUCKET_NAME}/${SERVER_NAME}/${LATEST_ARCHIVE_NAME}" ./
-  tar -zxf ./"${LATEST_ARCHIVE_NAME}"
-  rm ./"${LATEST_ARCHIVE_NAME}"
+  LATEST_ARCHIVE_KEY="$(aws s3api list-objects-v2 --bucket "${BUCKET_NAME}" --prefix "${SERVER_NAME}" | jq -r '[ (.Contents // []) | sort_by(.LastModified) | reverse | .[] | select(.StorageClass == "STANDARD") | .Key ] | .[0] // ""')"
+  LATEST_ARCHIVE_NAME="${LATEST_ARCHIVE_KEY##"${SERVER_NAME}/"}"
+  if [ -n "${LATEST_ARCHIVE_KEY}" ]; then
+    aws s3 cp "s3://${BUCKET_NAME}/${SERVER_NAME}/${LATEST_ARCHIVE_NAME}" ./
+    tar -zxf ./"${LATEST_ARCHIVE_NAME}"
+    rm ./"${LATEST_ARCHIVE_NAME}"
+  fi
 fi
 
 wget -q -O "paper_${SERVER_VERSION}.json" "https://api.papermc.io/v2/projects/paper/versions/${SERVER_VERSION}/builds"
