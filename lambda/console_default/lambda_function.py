@@ -159,7 +159,6 @@ def do_action(event):
         elif action == "CreateInstance":
             branch_name = default_settings['branch_name']
             name = setting['server']['name']
-            server_name = setting['server']['server_name']
             version = get_param(event, 'mcversion')
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
@@ -181,6 +180,16 @@ def do_action(event):
                 'instance_type': instance_type,
                 'bucket_name': setting['aws']['archive_bucket_name']
             }
+            minecraft_settings = {
+                'server_name': setting['server']['server_name'],
+                'version': version,
+                'open_jdk_ver': open_jdk_ver,
+                'max_user': max_user
+            }
+            discord_settings = {
+                'webhook_user': discord_webhook_user,
+                'webhook_admin': discord_webhook_admin
+            }
 
             if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] != 'terminated' ]) > 0:
                 return {
@@ -192,7 +201,7 @@ def do_action(event):
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(branch_name, name, server_name, aws_settings, version, open_jdk_ver, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, lambda_url),
+                'body': instance_create.create_action(branch_name, minecraft_settings, name, aws_settings, script_arg, update_plugins, discord_settings, lambda_url),
             }
         elif action == "SyncInstanceRuning":
             region = setting['aws']['region']

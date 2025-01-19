@@ -2,8 +2,8 @@ import base64
 import boto3
 import json
 
-def create_action(branch_name, name, server_name, aws_settings, version, open_jdk_ver, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url):
-    print(version, script_arg)
+def create_action(branch_name, minecraft_settings, name, aws_settings, script_arg, update_plugins, discord_settings, console_lambda_url):
+    print(script_arg)
 
     def parse_device_mapping(mapping):
         ret = {}
@@ -30,20 +30,20 @@ def create_action(branch_name, name, server_name, aws_settings, version, open_jd
 
     def to_base64(script):
         return base64.b64encode(script.encode()).decode()
-    def get_script(arg_value, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url):
+    def get_script(arg_value, minecraft_settings, bucket_name, update_plugins, discord_settings, console_lambda_url):
         user_data = ""
         with open('res/bash/user_data.sh') as f:
             user_data = f.read()
         instance_params_obj = {
             'arg_value': arg_value,
-            'version': version,
-            'server_name': server_name,
+            'version': minecraft_settings['version'],
+            'server_name': minecraft_settings['server_name'],
             'bucket_name': bucket_name,
-            'max_user': max_user,
-            'open_jdk_ver': open_jdk_ver,
+            'max_user': minecraft_settings['max_user'],
+            'open_jdk_ver': minecraft_settings['open_jdk_ver'],
             'update_plugins': update_plugins,
-            'discord_webhook_user': discord_webhook_user,
-            'discord_webhook_admin': discord_webhook_admin,
+            'discord_webhook_user': discord_settings['webhook_user'],
+            'discord_webhook_admin': discord_settings['webhook_admin'],
             'console_lambda_url': console_lambda_url
         }
         return user_data.replace('%%BRANCH_NAME%%', branch_name).replace('%%INSTANCE_PARAMS_JSON%%', json.dumps(instance_params_obj, ensure_ascii=False, indent=None))
@@ -148,7 +148,7 @@ def create_action(branch_name, name, server_name, aws_settings, version, open_jd
         EbsOptimized=True,
         InstanceInitiatedShutdownBehavior='terminate',
         BlockDeviceMappings=get_block_device_mappings(ami_image),
-        UserData=to_base64(get_script(script_arg, version, server_name, bucket_name, max_user, open_jdk_ver, update_plugins, discord_webhook_user, discord_webhook_admin, console_lambda_url)),
+        UserData=to_base64(get_script(minecraft_settings, script_arg, bucket_name, update_plugins, discord_settings, console_lambda_url)),
         NetworkInterfaces=[
             {
                 'SubnetId': get_subnet_id(ec2, get_supported_availability_zones(ec2, instance_type), subnet_name),
