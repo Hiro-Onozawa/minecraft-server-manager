@@ -55,7 +55,7 @@ def validate_minecraft_settings(is_admin, common_settings, minecraft_settings):
 
     return None
 
-def main(name, lambda_url, common_settings, mode):
+def main(console_title, lambda_url, common_settings, mode):
     version = ""
     html = ""
     script = ""
@@ -70,7 +70,7 @@ def main(name, lambda_url, common_settings, mode):
         style = f.read()
 
     replace_obj = {
-        'server_name': name,
+        'console_title': console_title,
         'style': style,
         'script': script,
         'version': version,
@@ -117,12 +117,12 @@ def do_action(event):
             raise 'request as admin, but lambda is running as user.'
 
         if action == 'main':
-            name = setting['server']['name']
+            console_title = '%s %sConsole' % (setting['server']['name'], 'Admin ' if mode == 'admin' else '')
             lambda_url = get_lambda_url(event)
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/html; charset=UTF-8' },
-                'body': main(name, lambda_url, common_settings, mode),
+                'body': main(console_title, lambda_url, common_settings, mode),
             }
         if action == "Describe":
             name = setting['server']['name']
