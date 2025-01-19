@@ -10,7 +10,7 @@ BACKUP_NAME="main_backup_${SERVER_VERSION}_${SUFFIX}.tar"
 
 mkdir -p "${BACKUP_HOME}"
 pushd "${SERVER_HOME}"
-  tar -cf "${BACKUP_HOME}/${BACKUP_NAME}" ops.json world{,_nether,_the_end}
+  tar -cf "${BACKUP_HOME}/${BACKUP_NAME}" server.properties ops.json world{,_nether,_the_end}
   if [ -d "plugins" ]; then
     if test -n "$(find "plugins" -maxdepth 1 -name '*.jar' -print -quit)"; then
       tar -rf "${BACKUP_HOME}/${BACKUP_NAME}" plugins/*.jar

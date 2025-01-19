@@ -4,22 +4,26 @@
       {
         "name": "1.21.4",
         "value": "1.21.4",
-        "open_jdk": "openjdk-21-jdk"
+        "open_jdk": "openjdk-21-jdk",
+        "is_default": true
       },
       {
         "name": "1.21",
         "value": "1.21",
-        "open_jdk": "openjdk-21-jdk"
+        "open_jdk": "openjdk-21-jdk",
+        "is_default": false
       },
       {
         "name": "1.20.6",
         "value": "1.20.6",
-        "open_jdk": "openjdk-21-jdk"
+        "open_jdk": "openjdk-21-jdk",
+        "is_default": false
       },
       {
         "name": "1.20.4",
         "value": "1.20.4",
-        "open_jdk": "openjdk-17-jdk"
+        "open_jdk": "openjdk-17-jdk",
+        "is_default": false
       }
     ],
     "capacities":[
@@ -27,25 +31,81 @@
         "name": "メンテ用",
         "value": 1,
         "only_admin": true,
-        "instance_type": "t3a.small"
+        "instance_type": "t3a.small",
+        "is_default": false
       },
       {
         "name": "5人",
         "value": 5,
         "only_admin": false,
-        "instance_type": "t3a.medium"
+        "instance_type": "t3a.medium",
+        "is_default": true
       },
       {
         "name": "10人",
         "value": 10,
         "only_admin": false,
-        "instance_type": "t3a.medium"
+        "instance_type": "t3a.medium",
+        "is_default": false
       },
       {
         "name": "20人",
         "value": 20,
         "only_admin": false,
-        "instance_type": "t3a.large"
+        "instance_type": "t3a.large",
+        "is_default": false
+      }
+    ],
+    "difficulty":[
+      {
+        "name": "ピースフル",
+        "value": "peaceful",
+        "only_admin": true,
+        "is_default": false
+      },
+      {
+        "name": "イージー",
+        "value": "easy",
+        "only_admin": false,
+        "is_default": true
+      },
+      {
+        "name": "ノーマル",
+        "value": "normal",
+        "only_admin": false,
+        "is_default": false
+      },
+      {
+        "name": "ハード",
+        "value": "hard",
+        "only_admin": false,
+        "is_default": false
+      }
+    ],
+    "gamemode":[
+      {
+        "name": "サバイバル",
+        "value": "survival",
+        "only_admin": false,
+        "is_default": true
+      },
+      {
+        "name": "クリエイティブ",
+        "value": "creative",
+        "only_admin": true,
+        "is_default": false
+      },
+      {
+        "name": "アドベンチャー",
+        "value": "adventure",
+        "only_admin": true,
+        "is_default": false
+      },
+      {
+        "name": "スペクテイター",
+        "value": "spectator",
+        "only_admin": true,
+        "is_default": false
       }
     ]
   },

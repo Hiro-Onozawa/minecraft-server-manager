@@ -34,6 +34,27 @@ def make_node(name, text, attributes=None):
 def make_html(headContents, bodyContents):
     return '<!DOCTYPE html>' + make_node('html', ''.join([make_node('head', ''.join(headContents)), make_node('body', ''.join(bodyContents))]))
 
+def validate_minecraft_settings(is_admin, common_settings, minecraft_settings):
+    if is_admin:
+        return None
+
+    if next(filter(lambda x: x['value'] == minecraft_settings['max_user'], common_settings['capacities']), {'only_admin': True})['only_admin']:
+        return 'try to setting max_user as %s, but lambda is running as user.' % minecraft_settings['max_user']
+
+    if next(filter(lambda x: x['value'] == minecraft_settings['difficulty'], common_settings['difficulty']), {'only_admin': True})['only_admin']:
+        return 'try to setting difficulty as %s, but lambda is running as user.' % minecraft_settings['difficulty']
+
+    if next(filter(lambda x: x['value'] == minecraft_settings['gamemode'], common_settings['gamemode']), {'only_admin': True})['only_admin']:
+        return 'try to setting gamemode as %s, but lambda is running as user.' % minecraft_settings['gamemode']
+
+    if minecraft_settings['world_size'] is not None:
+        return 'try to setting world_size, but lambda is running as user.'
+
+    if minecraft_settings['hardcore'] is not None:
+        return 'try to setting hardcore, but lambda is running as user.'
+
+    return None
+
 def main(name, lambda_url, common_settings, mode):
     version = ""
     html = ""
@@ -56,10 +77,16 @@ def main(name, lambda_url, common_settings, mode):
         'describe_url': lambda_url,
         'create_instance_url': lambda_url,
         'list_archive_url': lambda_url,
-        'server_version': ''.join([ '<option value="%s">%s</option>' % (x['value'], x['name']) for x in common_settings['versions'] ]),
-        'admin_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if x['only_admin'] ]),
-        'user_capacity': ''.join([ '<option value="%d">%s</option>' % (x['value'], x['name']) for x in common_settings['capacities'] if not x['only_admin'] ]),
-        'admin_update_plugins_check': '<br><label for="update_plugins">プラグインの更新を実行する</label><input name="update_plugins" value="true" type="checkbox">',
+        'server_version': ''.join([ '<option value="%s"%s>%s</option>' % (x['value'], ' selected' if x['is_default'] else '', x['name']) for x in common_settings['versions'] ]),
+        'admin_capacity': ''.join([ '<option value="%d"%s>%s</option>' % (x['value'], ' selected' if x['is_default'] else '', x['name']) for x in common_settings['capacities'] if x['only_admin'] ]),
+        'user_capacity': ''.join([ '<option value="%d"%s>%s</option>' % (x['value'], ' selected' if x['is_default'] else '', x['name']) for x in common_settings['capacities'] if not x['only_admin'] ]),
+        'admin_difficulty': ''.join([ '<option value="%s"%s>%s</option>' % (x['value'], ' selected' if x['is_default'] else '', x['name']) for x in common_settings['difficulty'] if x['only_admin'] ]),
+        'user_difficulty': ''.join([ '<option value="%s"%s>%s</option>' % (x['value'], ' selected' if x['is_default'] else '', x['name']) for x in common_settings['difficulty'] if not x['only_admin'] ]),
+        'admin_gamemode': ''.join([ '<option value="%s"%s>%s</option>' % (x['value'], ' selected' if x['is_default'] else '', x['name']) for x in common_settings['gamemode'] if x['only_admin'] ]),
+        'user_gamemode': ''.join([ '<option value="%s"%s>%s</option>' % (x['value'], ' selected' if x['is_default'] else '', x['name']) for x in common_settings['gamemode'] if not x['only_admin'] ]),
+        'admin_world_size_edit': '<label for="world_size">ワールドサイズ</label><input name="world_size" value="8192" type="number" min="1" max="29999984"><br>',
+        'admin_hardcore_check': '<label for="hardcore">ハードコアモードで起動する</label><input name="hardcore" value="false" type="checkbox"><br>',
+        'admin_update_plugins_check': '<label for="update_plugins">プラグインの更新を実行する</label><input name="update_plugins" value="true" type="checkbox"><br>',
         'admin_create_instance_button': '<button id="admin_start" onclick="Start(this, true)" type="submit" name="action" value="CreateInstance">管理者として起動する</button>'
     }
     if mode != 'admin':
@@ -108,7 +135,6 @@ def do_action(event):
         elif action == "CreateInstance":
             branch_name = default_settings['branch_name']
             name = setting['server']['name']
-            server_name = setting['server']['server_name']
             version = get_param(event, 'mcversion')
             open_jdk_ver = [ x['open_jdk'] for x in common_settings['versions'] if x['value'] == version ][0]
             capacity = get_param(event, 'capacity')
@@ -130,6 +156,28 @@ def do_action(event):
                 'instance_type': instance_type,
                 'bucket_name': setting['aws']['archive_bucket_name']
             }
+            minecraft_settings = {
+                'server_name': setting['server']['server_name'],
+                'version': version,
+                'open_jdk_ver': open_jdk_ver,
+                'max_user': max_user,
+                'difficulty': get_param(event, 'difficulty', 'easy'),
+                'gamemode': get_param(event, 'gamemode', 'survival'),
+                'world_size': get_param(event, 'world_size', None),
+                'hardcore': get_param(event, 'hardcore', None)
+            }
+            discord_settings = {
+                'webhook_user': discord_webhook_user,
+                'webhook_admin': discord_webhook_admin
+            }
+
+            validate_massage = validate_minecraft_settings(mode == 'admin', common_settings, minecraft_settings)
+            if validate_massage is not None:
+                return {
+                    'statusCode': 429,
+                    'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
+                    'body': '{"message":"%s"}' % validate_massage,
+                }
 
             if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] != 'terminated' ]) > 0:
                 return {
@@ -141,7 +189,7 @@ def do_action(event):
             return {
                 'statusCode': 200,
                 'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
-                'body': instance_create.create_action(branch_name, name, server_name, aws_settings, version, open_jdk_ver, max_user, script_arg, update_plugins, discord_webhook_user, discord_webhook_admin, lambda_url),
+                'body': instance_create.create_action(branch_name, minecraft_settings, name, aws_settings, script_arg, update_plugins, discord_settings, lambda_url),
             }
         elif action == "SyncInstanceRuning":
             region = setting['aws']['region']

@@ -1,7 +1,9 @@
 rcon.port=25575
 enable-command-block=true
 motd=
-difficulty=easy
+gamemode=
+difficulty=
+hardcore=false
 max-players=
 broadcast-rcon-to-ops=true
 view-distance=10
