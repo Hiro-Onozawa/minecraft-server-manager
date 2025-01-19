@@ -34,6 +34,28 @@ def make_node(name, text, attributes=None):
 def make_html(headContents, bodyContents):
     return '<!DOCTYPE html>' + make_node('html', ''.join([make_node('head', ''.join(headContents)), make_node('body', ''.join(bodyContents))]))
 
+def validate_minecraft_settings(is_admin, minecraft_settings):
+    if is_admin:
+        return None
+
+    [ (x['instance_type'], x['value']) for x in common_settings['capacities'] if str(x['value']) == capacity ][0]
+    if next(filter(lambda x: str(x['value']) == minecraft_settings['max_user'], common_settings['capacities']), {'only_admin': True})['only_admin']:
+        return 'try to setting max_user as %s, but lambda is running as user.' % minecraft_settings['max_user']
+
+    if next(filter(lambda x: str(x['value']) == minecraft_settings['difficulty'], common_settings['difficulty']), {'only_admin': True})['only_admin']:
+        return 'try to setting difficulty as %s, but lambda is running as user.' % minecraft_settings['difficulty']
+
+    if next(filter(lambda x: str(x['value']) == minecraft_settings['gamemode'], common_settings['gamemode']), {'only_admin': True})['only_admin']:
+        return 'try to setting gamemode as %s, but lambda is running as user.' % minecraft_settings['gamemode']
+
+    if minecraft_settings['world_size'] is not None:
+        return 'try to setting world_size, but lambda is running as user.'
+
+    if minecraft_settings['hardcore'] is not None:
+        return 'try to setting hardcore, but lambda is running as user.'
+
+    return None
+
 def main(name, lambda_url, common_settings, mode):
     version = ""
     html = ""
@@ -149,6 +171,14 @@ def do_action(event):
                 'webhook_user': discord_webhook_user,
                 'webhook_admin': discord_webhook_admin
             }
+
+            validate_massage = validate_minecraft_settings(mode == 'admin', minecraft_settings)
+            if validate_massage is not None:
+                return {
+                    'statusCode': 429,
+                    'headers': { 'Content-Type': 'text/json; charset=UTF-8' },
+                    'body': '{"message":"%s"}' % validate_massage,
+                }
 
             if len([ x for x in instance_describe.describe_action(name, [region])['instances'] if x['State'] != 'terminated' ]) > 0:
                 return {
